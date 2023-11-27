@@ -1,4 +1,4 @@
-# ShootingStar
+# Shooting Star
 
 CMSC 22 Final Project  
 Section: YZ2L  
