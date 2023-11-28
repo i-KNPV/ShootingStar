@@ -5,12 +5,11 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import screens.GameScreen;
 
 public class MainMenu extends Application {
 
     private Stage primaryStage;
-    private Scene mainMenuScene;
-    private Scene helloWorldScene;
 
     public static void main(String[] args) {
         launch(args);
@@ -25,31 +24,28 @@ public class MainMenu extends Application {
         Button storeButton = new Button("Store");
         Button settingsButton = new Button("Settings");
 
-        // Set action handlers for the buttons
-        playButton.setOnAction(e -> showHelloWorldScene());
-        storeButton.setOnAction(e -> showHelloWorldScene());
-        settingsButton.setOnAction(e -> showHelloWorldScene());
+        // Set action handlers for the buttons 
+        playButton.setOnAction(event -> showGameScreen());
+        // storeButton.setOnAction(event -> showStoreScreen());
+        // settingsButton.setOnAction(event -> showSettingsScreen());
 
         // Layout for the main menu
         VBox mainMenuLayout = new VBox(10);
         mainMenuLayout.getChildren().addAll(playButton, storeButton, settingsButton);
-        mainMenuScene = new Scene(mainMenuLayout, 300, 200);
+        Scene scene = new Scene(mainMenuLayout, 512, 512);
 
-        // Create the "Hello World!" scene
-        Button backButton = new Button("Back to Main Menu");
-        backButton.setOnAction(e -> primaryStage.setScene(mainMenuScene));
-        VBox helloWorldLayout = new VBox(10);
-        helloWorldLayout.getChildren().addAll(new Button("Hello World!"), backButton);
-        helloWorldScene = new Scene(helloWorldLayout, 300, 200);
 
         // Set the initial scene to the main menu
-        primaryStage.setScene(mainMenuScene);
-        primaryStage.setTitle("Simple Main Menu");
+        primaryStage.setScene(scene);
+        primaryStage.setTitle("Shooting Star [Main Menu][alpha]");
         primaryStage.show();
     }
 
-    // Method to switch to the "Hello World!" scene
-    private void showHelloWorldScene() {
-        primaryStage.setScene(helloWorldScene);
+    // Method to switch to the GameScreen
+    private void showGameScreen() {
+    	GameScreen gameScreen = new GameScreen();
+    	primaryStage.setTitle("Shooting Star [Game Screen][alpha]");
+        primaryStage.setScene(gameScreen.getScene());
     }
+ 
 }
