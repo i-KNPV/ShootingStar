@@ -1,7 +1,8 @@
-# 0.0.2 (2023-12-6 16:09)
+# 0.0.2 (2023-12-6 17:03)
 
 ### Release Highlights
 - Created initial design for the main menu
+- Added framework for an enemy with collision detection
 
 # 0.0.1 (2023-11-28 14:42) 
 
