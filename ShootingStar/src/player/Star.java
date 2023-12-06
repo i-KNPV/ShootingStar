@@ -80,8 +80,12 @@ public class Star {
     	object.setCenterY(objectY);
     }
     
-
 	public boolean isOutOfBounds() {
 		return objectY < 0;
+	}
+	
+	public void stopMovement() {
+		movement.stopVertical();
+		movement.stopHorizontal();
 	}
 }

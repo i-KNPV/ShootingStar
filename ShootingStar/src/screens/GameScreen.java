@@ -8,21 +8,33 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
+import javafx.util.Duration;
+
 import player.Star;
+import enemies.Rocket;
 
 public class GameScreen {
 	private Group root;
     private Star star;
     private Text messageText;
     private Text timerText;
+    private Text gameOverText;
     private double outOfBoundsTimer = 5.0;
+    private Rocket rocket;
 	
 	public GameScreen() {
 		root = new Group();
 		Scene scene = new Scene(root, 600, 800, Color.WHITE);
 		
-		star = new Star(scene.getWidth(), scene.getHeight());
+		star = new Star(scene.getWidth(), scene.getHeight());		
 		root.getChildren().add(star.getObject());
+		
+		rocket = new Rocket(scene.getWidth(), scene.getHeight());
+		root.getChildren().add(rocket.getObject());
+		
+		gameOverText = createGameOverText();
+		root.getChildren().add(gameOverText);
+		gameOverText.setVisible(false);
 		
 		messageText = createMessageText();
 		timerText = createTimerText();
@@ -33,7 +45,10 @@ public class GameScreen {
 		AnimationTimer timer = new AnimationTimer() {
             @Override
             public void handle(long now) {
+            	rocket.updatePosition();
                 star.updatePosition();
+                handleCollisions();
+                rocket.updateSurvivalTime(Duration.seconds(rocket.getSurvivalTime().toSeconds()));
                 handleOutOfBoundsMessages();
             }
         };
@@ -42,6 +57,29 @@ public class GameScreen {
 	
 	public Scene getScene() {
 		return root.getScene();
+	}
+	
+	private void handleCollisions() { 
+		if (rocket.isCollidedWithStar(star)){
+			stopGame();
+		}
+	}
+	
+	private void stopGame() {
+		star.stopMovement();
+		
+		gameOverText.setText("Game Over! You survived for: " + (int) rocket.getSurvivalTime().toSeconds() + " seconds");
+		gameOverText.setVisible(true);
+	}
+	
+	private Text createGameOverText() {
+		Text text = new Text();
+        text.setFont(Font.font("Arial", FontWeight.BOLD, 24));
+        text.setFill(Color.RED);
+        text.setTextAlignment(TextAlignment.CENTER);
+        text.setLayoutX(root.getScene().getWidth() / 2 - 200);
+        text.setLayoutY(50);
+        return text;
 	}
 	
     private void handleOutOfBoundsMessages() {
