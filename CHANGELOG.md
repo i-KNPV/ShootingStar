@@ -1,3 +1,8 @@
+# 0.0.2 (2023-12-6 16:09)
+
+### Release Highlights
+- Created initial design for the main menu
+
 # 0.0.1 (2023-11-28 14:42) 
 
 ### Release Highlights
