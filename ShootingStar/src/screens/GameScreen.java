@@ -19,7 +19,7 @@ public class GameScreen {
 	
 	public GameScreen() {
 		root = new Group();
-		Scene scene = new Scene(root, 512, 512, Color.WHITE);
+		Scene scene = new Scene(root, 600, 800, Color.WHITE);
 		
 		star = new Star(scene.getWidth(), scene.getHeight());
 		root.getChildren().add(star.getObject());
