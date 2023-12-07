@@ -8,6 +8,7 @@
 
 ### Release Highlights
 - Created initial design for the main menu
+- Added framework for an enemy with collision detection
 
 # 0.0.1 (2023-11-28 14:42) 
 
@@ -22,5 +23,5 @@
 
 
 ### Release Highlights
-Intiial commit for project
+- Intial commit for project
 - Initalized main menu 
