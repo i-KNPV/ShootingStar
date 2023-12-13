@@ -1,3 +1,11 @@
+# 0.0.4 (2023-12-13 13:03)
+
+### Release Highlights
+- Overhauled enemies
+- Added smoothing 
+- Feature: Added player vitality
+- Feature: Game over screen
+
 # 0.0.3 (2023-12-7 13:03)
 
 ### Release Highlights
