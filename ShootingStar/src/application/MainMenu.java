@@ -94,7 +94,7 @@ public class MainMenu extends Application {
 
     // Method to switch to the GameScreen
     private void showGameScreen() {
-    	GameScreen gameScreen = new GameScreen();
+    	GameScreen gameScreen = new GameScreen(primaryStage);
     	primaryStage.setTitle("Shooting Star [Game Screen][alpha]");
         primaryStage.setScene(gameScreen.getScene());
     }

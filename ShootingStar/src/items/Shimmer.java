@@ -1,5 +1,5 @@
 package items;
 
-public class Shimmer {
+public class Shimmer{
 
 }

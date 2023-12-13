@@ -9,17 +9,21 @@ import java.util.Set;
 
 import enemies.Enemy;
 
-
 public class Star {
 
     private double objectX;
     public double objectY;
     private Circle object;
     private Movement movement;
+    private int vitality;
     private double sceneWidth;
     private double sceneHeight;
     private boolean collided;
-    
+    private boolean isInvincible = false;
+    private double invincibilityTime = 0;
+    private double vitalityDecrementTimer = 0;
+    private static final double INVINCIBILITY_DURATION = 1.0;
+    private static final double VITALITY_DECREMENT_VALUE = 1.0;
     private static final double OBJECT_RADIUS = 20.0;
     private Set<KeyCode> pressedKeys = new HashSet<>();   
     
@@ -31,6 +35,7 @@ public class Star {
     	this.sceneWidth = sceneWidth;
     	this.sceneHeight = sceneHeight;
     	this.collided = false;
+    	this.vitality = 100;
     }
 
     public Circle getObject() {
@@ -68,8 +73,14 @@ public class Star {
     
     
     public void handleCollisions(Enemy enemy) {
-    	if (enemy.isCollidedWithStar(this)) {
-            collided = true;
+    	if (!isInvincible && enemy.isCollidedWithStar(this)) {
+    		vitality = vitality - enemy.getDamage();
+    		isInvincible = true; // Set invincibility
+            invincibilityTime = 0; // Reset invincibility timer
+    	}
+    		
+    	if (vitality < 0) {
+    		collided = true;
             enemy.hasCollided(true);
             stopMovement(); // Stop Star's movement upon collision
     	}
@@ -102,6 +113,20 @@ public class Star {
     		movement.stopVertical();
     		movement.stopHorizontal();
     	}
+    	
+    	if (isInvincible) {
+            invincibilityTime += 0.016; // Assuming 60 FPS, increase time by ~1/60th of a second
+            if (invincibilityTime >= INVINCIBILITY_DURATION) {
+                isInvincible = false;
+                invincibilityTime = 0;
+            }
+        } else {
+        	vitalityDecrementTimer += 0.016;
+        	if (vitalityDecrementTimer >= VITALITY_DECREMENT_VALUE) {
+        		vitality--;
+        		vitalityDecrementTimer = 0;
+        	}
+        }
     }
     
 	public boolean isOutOfBounds() {
@@ -111,5 +136,13 @@ public class Star {
 	public void stopMovement() {
 		movement.stopVertical();
 		movement.stopHorizontal();
+	}
+	
+	public int getVitality() {
+		return vitality;
+	}
+	
+	public void setVitality(int newValue) {
+		vitality = newValue;
 	}
 }

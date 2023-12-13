@@ -3,7 +3,7 @@ package player;
 public class Movement {
 	private double velocityX;
 	private double velocityY;
-	private static final double SPEED = 5.0;
+	private static final double SPEED = 6.0;
 	public static final double WIND_FORCE = -2;
 	
     public void moveLeft() {
