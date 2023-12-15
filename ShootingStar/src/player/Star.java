@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import enemies.Enemy;
+import items.Shimmer;
 
 public class Star {
 
@@ -20,8 +21,10 @@ public class Star {
     private double sceneHeight;
     private boolean collided;
     private boolean isInvincible = false;
+    private boolean gameActive = true;
     private double invincibilityTime = 0;
     private double vitalityDecrementTimer = 0;
+    private String damageText = "";
     private static final double INVINCIBILITY_DURATION = 1.0;
     private static final double VITALITY_DECREMENT_VALUE = 1.0;
     private static final double OBJECT_RADIUS = 20.0;
@@ -74,9 +77,11 @@ public class Star {
     
     public void handleCollisions(Enemy enemy) {
     	if (!isInvincible && enemy.isCollidedWithStar(this)) {
-    		vitality = vitality - enemy.getDamage();
+    		int damage = enemy.getDamage();
+    		vitality -= damage;
     		isInvincible = true; // Set invincibility
             invincibilityTime = 0; // Reset invincibility timer
+            damageText = "-" + damage;
     	}
     		
     	if (vitality < 0) {
@@ -86,9 +91,23 @@ public class Star {
     	}
 	}
     
+    public String getDamageText() {
+        return damageText;
+    }
+
+    public void clearDamageText() {
+        damageText = "";
+    }
+    
 	public boolean isCollided() {
 		return collided;
 	}
+	
+	public boolean isCollidedWithShimmer(Shimmer shimmer) {
+	    Circle shimmerObject = shimmer.getObject();
+	    return shimmerObject.getBoundsInParent().intersects(this.object.getBoundsInParent());
+	}
+
     
     public void updatePosition() {
     	if (!collided) {
@@ -114,19 +133,25 @@ public class Star {
     		movement.stopHorizontal();
     	}
     	
-    	if (isInvincible) {
-            invincibilityTime += 0.016; // Assuming 60 FPS, increase time by ~1/60th of a second
-            if (invincibilityTime >= INVINCIBILITY_DURATION) {
-                isInvincible = false;
-                invincibilityTime = 0;
+    	if (gameActive) {
+    		if (isInvincible) {
+                invincibilityTime += 0.016; // Assuming 60 FPS, increase time by ~1/60th of a second
+                if (invincibilityTime >= INVINCIBILITY_DURATION) {
+                    isInvincible = false;
+                    invincibilityTime = 0;
+                }
+            } else {
+            	vitalityDecrementTimer += 0.016;
+            	if (vitalityDecrementTimer >= VITALITY_DECREMENT_VALUE) {
+            		vitality--;
+            		vitalityDecrementTimer = 0;
+            	}
             }
-        } else {
-        	vitalityDecrementTimer += 0.016;
-        	if (vitalityDecrementTimer >= VITALITY_DECREMENT_VALUE) {
-        		vitality--;
-        		vitalityDecrementTimer = 0;
-        	}
-        }
+    	}
+    }
+    
+    public void setGameActive(boolean isActive) {
+        this.gameActive = isActive;
     }
     
 	public boolean isOutOfBounds() {
