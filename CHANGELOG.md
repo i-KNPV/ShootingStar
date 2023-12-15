@@ -1,3 +1,10 @@
+# 0.0.5 (2023-12-15 14:52)
+
+### Release Highlights
+- Added vitality HUD
+- Added damage counter
+- Added damage HUD
+
 # 0.0.4 (2023-12-13 13:03)
 
 ### Release Highlights
