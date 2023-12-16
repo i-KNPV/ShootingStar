@@ -48,7 +48,7 @@ public class GameScreen {
     private final int MAX_ENEMY_PHASE1 = 100;
     private final long NANOSECONDS_PER_SECOND = 500_000_000;
     private long lastSpawnTime = 0;
-    private final long spawnInterval = NANOSECONDS_PER_SECOND; // Spawn an enemy every second
+    private final long spawnInterval = NANOSECONDS_PER_SECOND; 
     
     private long lastShimmerSpawnTime = 0;
     private final long SHIMMER_SPAWN_INTERVAL = 20_000_000_000L;
@@ -85,11 +85,11 @@ public class GameScreen {
 	    damageText = new Text();
         damageText.setFont(Font.font("TTMarxianaW05-Grotesque", FontWeight.BOLD, 18));
         damageText.setFill(Color.RED);
-        damageText.setLayoutX(100); // Adjust position as needed
+        damageText.setLayoutX(100); 
         damageText.setLayoutY(20);
         root.getChildren().add(damageText);
         
-        timerBox = new Rectangle(200, 50); // Adjust size as needed
+        timerBox = new Rectangle(200, 50); 
         timerBox.setArcWidth(20); // Rounded corners
         timerBox.setArcHeight(20);
         timerBox.setFill(Color.WHITE);
@@ -109,7 +109,7 @@ public class GameScreen {
 	    vitalityText.setFont(Font.font("TTMarxianaW05-Grotesque", FontWeight.BOLD, 18));
 	    vitalityText.setFill(Color.BLACK);
 	    vitalityText.setLayoutX((scene.getWidth() - vitalityText.getLayoutBounds().getWidth()) / 2);
-	    vitalityText.setLayoutY(timerBox.getLayoutY() + timerBox.getHeight() + 20); // 20 is the margin
+	    vitalityText.setLayoutY(timerBox.getLayoutY() + timerBox.getHeight() + 20); 
 	    root.getChildren().add(vitalityText);
 
 	
@@ -139,6 +139,7 @@ public class GameScreen {
             		star.handleCollisions(enemy);
             		
             		if (enemy.isOutOfBounds()) {
+            			root.getChildren().remove(enemy.getImage());
             			enemiesToRemove.add(enemy);
             			enemySpawnCount--;
             		}
@@ -151,7 +152,8 @@ public class GameScreen {
         	        	playSoundEffect(4);
         	            
         	        	star.setVitality(((Shimmer) item).hasCollided(star));
-        	            root.getChildren().remove(item.getObject());
+        	        	 root.getChildren().remove(item.getImage()); 
+        	        	 root.getChildren().remove(item.getObject()); 
         	            itemsToRemove.add(item);
         	        }
         	        
@@ -198,23 +200,22 @@ public class GameScreen {
 	}
 	
 	private void spawnEnemy() {
-        // Create and add a new rocket to the scene
 		if (generalTimer > 10.0) {
-			Enemy rocket = new Rocket(getScene().getWidth(), getScene().getHeight(), this);
-	        root.getChildren().add(rocket.getObject());
+			Rocket rocket = new Rocket(getScene().getWidth(), getScene().getHeight(), this);
+	        root.getChildren().add(rocket.getImage());
 	        Enemy.addEnemy(rocket);
 		}
 		
-        Enemy bird = new Bird(getScene().getWidth(), getScene().getHeight(), this);
-        root.getChildren().add(bird.getObject());
-        Enemy.addEnemy(bird);
-        enemySpawnCount++;
-        System.out.println(enemySpawnCount);
+		Bird bird = new Bird(getScene().getWidth(), getScene().getHeight(), this);
+	    root.getChildren().add(bird.getImage());
+	    Enemy.addEnemy(bird);
+	    enemySpawnCount++;
     }
 	
 	private void spawnShimmer() {
 	    Shimmer shimmer = new Shimmer(getScene().getWidth(), getScene().getHeight(), this);
 	    root.getChildren().add(shimmer.getObject());
+	    root.getChildren().add(shimmer.getImage());
 	    Item.addItem(shimmer);
 	}
 	
@@ -257,7 +258,7 @@ public class GameScreen {
 		    countdownText.setText(Integer.toString(countdownValue));
 		    countdownText.setX((root.getScene().getWidth() - countdownText.getLayoutBounds().getWidth()) / 2);
 		    countdownText.setY((root.getScene().getHeight() / 2)-50);
-		    countdownText.setVisible(true); // Make it visible
+		    countdownText.setVisible(true); 
 
 	        countdownTimer = new AnimationTimer() {
 	            private long lastUpdate = 0;
@@ -281,7 +282,7 @@ public class GameScreen {
 	    } else {
 	    	gameLoopTimer.stop();
 	        countdownTimer.stop();
-	        countdownText.setVisible(false); // Hide when countdown is over
+	        countdownText.setVisible(false); 
 	        countdownRunning = false;
 	        showGameOverScreen();
 	    }
@@ -346,7 +347,7 @@ public class GameScreen {
             if (!root.getChildren().contains(messageText)) {
                 root.getChildren().addAll(messageText, timerText);
             }
-            outOfBoundsTimer -= 0.016; // Update timer (60 FPS)
+            outOfBoundsTimer -= 0.016;
 
             timerText.setText(String.format("Return in %.0f seconds", outOfBoundsTimer));
             timerText.setVisible(true);
@@ -355,7 +356,7 @@ public class GameScreen {
                 messageText.setText("Out of bounds! Return to play area immediately");
                 messageText.setVisible(true);
                 timerText.setVisible(false);
-                outOfBoundsTimer = 5.0; // Reset the timer
+                outOfBoundsTimer = 5.0; 
             }
         } else {
             root.getChildren().removeAll(messageText, timerText);
@@ -393,8 +394,6 @@ public class GameScreen {
         text.setLayoutY(80);
         text.setVisible(true);
         text.toFront();
-
-        // Bind the layoutX property to keep the text centered
         text.setLayoutX(((root.getScene().getWidth() - text.getLayoutBounds().getWidth()) / 2) - 8);
 
         return text;

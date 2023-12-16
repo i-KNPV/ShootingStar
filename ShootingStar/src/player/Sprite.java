@@ -3,7 +3,6 @@ package player;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-
 import enemies.Enemy;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -22,7 +21,7 @@ public class Sprite {
     public boolean slowingDown;
     public double slowdownTimer = 0;
     private double originalSpeed;
-    public static final double SLOWDOWN_DURATION = 2.0; // 2 seconds
+    public static final double SLOWDOWN_DURATION = 2.0;
 
 
     protected static final double ENEMY_RADIUS = 20.0;
@@ -56,12 +55,12 @@ public class Sprite {
     public void updatePosition() {
         if (!collided) {
            
-            objectY -= SPEED; // Use dynamic speed
+            objectY -= SPEED; 
             object.setCenterX(objectX);
             object.setCenterY(objectY);
         } else {
         	if (slowingDown) {
-                double frameDuration = 0.016; // Assuming 60 FPS
+                double frameDuration = 0.016; 
                 slowdownTimer -= frameDuration;
 
                 if (slowdownTimer > 0) {
@@ -72,7 +71,7 @@ public class Sprite {
                     slowingDown = false;
                 }
                 
-                objectY -= SPEED; // Use dynamic speed
+                objectY -= SPEED; 
                 object.setCenterX(objectX);
                 object.setCenterY(objectY);
             }
@@ -83,7 +82,7 @@ public class Sprite {
         if (!slowingDown) {
             slowingDown = true;
             slowdownTimer = SLOWDOWN_DURATION;
-            originalSpeed = getSpeed(); // Capture the current speed of the sprite
+            originalSpeed = getSpeed();
         }
     }
    

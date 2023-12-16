@@ -52,7 +52,7 @@ public class Star {
     	
     	Image image = new Image("assets/sprites/star.png");
         starImage = new ImageView(image);
-        starImage.setFitWidth(OBJECT_RADIUS * 2.5); // Set the size of the image
+        starImage.setFitWidth(OBJECT_RADIUS * 2.5);
         starImage.setFitHeight(OBJECT_RADIUS * 2.5);
         starImage.setPreserveRatio(true);
         starImage.setVisible(true);
@@ -95,7 +95,7 @@ public class Star {
     }
     
     private void updateImagePosition() {
-    	starImage.setLayoutX(objectX - OBJECT_RADIUS); // Adjust position to align with the circle
+    	starImage.setLayoutX(objectX - OBJECT_RADIUS); 
         starImage.setLayoutY(objectY - OBJECT_RADIUS);
     }
     
@@ -105,8 +105,8 @@ public class Star {
     		soundEffect.setFile(0);
     		soundEffect.play();
     		vitality -= damage;
-    		isInvincible = true; // Set invincibility
-            invincibilityTime = 0; // Reset invincibility timer
+    		isInvincible = true;
+            invincibilityTime = 0; 
             damageText = "-" + damage;
     	}
     	
@@ -115,7 +115,7 @@ public class Star {
     		collided = true;
     		starImage.setVisible(false);
             enemy.hasCollided(true);
-            stopMovement(); // Stop Star's movement upon collision
+            stopMovement();
             vitality = 0;
     	}
 	}
@@ -145,7 +145,7 @@ public class Star {
 	
 	    	// Boundary checking
 	    	double minX = OBJECT_RADIUS;
-	        double minY = -100; // Allows the star to go beyond the top of the window
+	        double minY = -100; 
 	        double maxX = sceneWidth - OBJECT_RADIUS;
 	        double maxY = sceneHeight - OBJECT_RADIUS;
 	
@@ -165,7 +165,7 @@ public class Star {
     	
     	if (gameActive) {
     		if (isInvincible) {
-                invincibilityTime += 0.016; // Assuming 60 FPS, increase time by ~1/60th of a second
+                invincibilityTime += 0.016; // increase time by 1/60th of a second
                 if (invincibilityTime >= INVINCIBILITY_DURATION) {
                     isInvincible = false;
                     invincibilityTime = 0;

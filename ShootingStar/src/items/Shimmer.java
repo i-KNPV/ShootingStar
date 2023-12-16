@@ -1,12 +1,15 @@
 package items;
 
 import application.Sound;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import player.Star;
 import screens.GameScreen;
 
 public class Shimmer extends Item{
+	private ImageView image;
 	private Sound sound;
 	private Circle object;
 	protected double objectX;
@@ -21,12 +24,21 @@ public class Shimmer extends Item{
 		
 		this.sound = new Sound();
 		this.objectX = generateRandomX();
-	    this.objectY = sceneHeight; // Position it at the bottom of the screen
+	    this.objectY = sceneHeight; 
 		this.object = new Circle(objectX, objectY, ITEM_RADIUS, Color.PINK);
 		this.SPEED = 2.0;
 		
 		sound.setFile(5);
 		sound.play();
+		
+		Image sprite = new Image("assets/sprites/shimmer.png");
+		image = new ImageView(sprite);
+		image.setFitWidth(ITEM_RADIUS * 2.5); 
+		image.setFitHeight(ITEM_RADIUS * 2.5);
+		image.setPreserveRatio(true);
+		image.setVisible(true);
+		
+		updateImagePosition();
 	}
 	
 	public Circle getObject() {
@@ -42,50 +54,60 @@ public class Shimmer extends Item{
 	public void updatePosition() {
         if (!collided) {
             if (slowingDown) {
-                double frameDuration = 0.016; // Assuming 60 FPS
+                double frameDuration = 0.016;
                 slowdownTimer -= frameDuration;
+                updateImagePosition();
 
                 if (slowdownTimer > 0) {
                     double slowdownRate = originalSpeed / SLOWDOWN_DURATION * frameDuration;
                     SPEED = Math.max(SPEED - slowdownRate, 0);
                 } else {
-                    SPEED = 0; // Stop completely after slowdown duration
+                    SPEED = 0; 
                     slowingDown = false;
                 }
             }
             
-            if (isOutOfBounds()) {
+            if (isOutOfBounds(sceneHeight)) {
                 stopSoundEffect();
             }
 
-            objectY -= SPEED; // Use dynamic speed
+            objectY -= SPEED; 
             object.setCenterX(objectX);
             object.setCenterY(objectY);
+            updateImagePosition();
         }
+    }
+	
+	private void updateImagePosition() {
+    	image.setLayoutX(objectX - ITEM_RADIUS); 
+        image.setLayoutY(objectY - ITEM_RADIUS);
     }
 	
 	public void initiateSlowdown() {
         if (!slowingDown) {
             slowingDown = true;
             slowdownTimer = SLOWDOWN_DURATION;
-            originalSpeed = getSpeed(); // Capture the current speed of the sprite
+            originalSpeed = getSpeed();
         }
     }
 	
-	public boolean isOutOfBounds() {
-	    return objectY < -ITEM_RADIUS; // Modify the condition as per your game's logic
+	public boolean isOutOfBounds(double sceneHeight) {
+		return objectY + ITEM_RADIUS < 0 || objectY - ITEM_RADIUS > sceneHeight;
 	}
 	
 	
 	@Override
     public void reset() {
         super.reset();
-        SPEED = 2.0; // Reset to the default speed of Rocket
-        // Reset other Rocket-specific state variables as needed
+        SPEED = 2.0; 
     }
 	
 	public void stopSoundEffect() {
 		sound.stop();
+	}
+	
+	public ImageView getImage() {
+		return image;
 	}
 
 }

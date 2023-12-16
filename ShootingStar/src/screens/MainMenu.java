@@ -74,7 +74,6 @@ public class MainMenu {
         StackPane mainMenuLayout = new StackPane();
         mainMenuLayout.getChildren().addAll(view_bg, logoLayout, buttonsLayout);
         
-        // Change coordinates
         view_logo.setTranslateY(-200); 
         buttonsLayout.setTranslateY(50);
         playButton.setTranslateY(10);
@@ -86,8 +85,6 @@ public class MainMenu {
         return scene;
     }
 
-
-    // Method to switch to the GameScreen
     private void showGameScreen() {
     	GameScreen gameScreen = new GameScreen(primaryStage, highScore);
     	primaryStage.setTitle("Shooting Star [Game Screen][alpha]");

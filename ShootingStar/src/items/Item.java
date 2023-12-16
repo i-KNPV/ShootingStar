@@ -2,6 +2,8 @@ package items;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javafx.scene.image.ImageView;
 import javafx.scene.shape.Circle;
 import player.Sprite;
 import player.Star;
@@ -10,6 +12,7 @@ import screens.GameScreen;
 public class Item extends Sprite{
     protected static List<Item> items = new ArrayList<>();
     private double originalSpeed;
+    protected ImageView image;
 	
 	public Item(double sceneWidth, double sceneHeight, GameScreen scene) {
 		super(sceneWidth, sceneHeight, scene);
@@ -39,12 +42,12 @@ public class Item extends Sprite{
 	 public void updatePosition() {
 	        if (!collided) {
 	           
-	            objectY -= SPEED; // Use dynamic speed
+	            objectY -= SPEED; 
 	            object.setCenterX(objectX);
 	            object.setCenterY(objectY);
 	        } else {
 	        	if (slowingDown) {
-	                double frameDuration = 0.016; // Assuming 60 FPS
+	                double frameDuration = 0.016; 
 	                slowdownTimer -= frameDuration;
 
 	                if (slowdownTimer > 0) {
@@ -55,7 +58,7 @@ public class Item extends Sprite{
 	                    slowingDown = false;
 	                }
 	                
-	                objectY -= SPEED; // Use dynamic speed
+	                objectY -= SPEED; 
 	                object.setCenterX(objectX);
 	                object.setCenterY(objectY);
 	            }
@@ -66,7 +69,7 @@ public class Item extends Sprite{
 	        if (!slowingDown) {
 	            slowingDown = true;
 	            slowdownTimer = SLOWDOWN_DURATION;
-	            originalSpeed = getSpeed(); // Capture the current speed of the sprite
+	            originalSpeed = getSpeed(); 
 	        }
 	    }
 	
@@ -82,7 +85,10 @@ public class Item extends Sprite{
 	        collided = false;
 	        slowingDown = false;
 	        SPEED = 2.0;
-	        // Reset other state variables as needed
-	    }
+	  }
+	 
+	 public ImageView getImage() {
+			return image;
+		}
 
 }

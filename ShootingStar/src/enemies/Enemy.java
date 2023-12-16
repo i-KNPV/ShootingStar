@@ -4,13 +4,14 @@ import player.Star;
 import java.util.ArrayList;
 import java.util.List;
 
+import javafx.scene.image.ImageView;
 import player.Sprite;
 import screens.GameScreen;
 
 public class Enemy extends Sprite{
     protected boolean collided;
     protected int damage;
-
+	protected ImageView image;
     protected static final double ENEMY_RADIUS = 20.0;
     protected static List<Enemy> enemies = new ArrayList<>();
 
@@ -53,5 +54,9 @@ public class Enemy extends Sprite{
     	slowingDown = false;
     	SPEED = 3.0;
     }
+    
+    public ImageView getImage() {
+		return image;
+	}
 
 }

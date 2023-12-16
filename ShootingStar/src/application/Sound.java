@@ -28,7 +28,7 @@ public class Sound {
             clip = AudioSystem.getClip();
             clip.open(ais);
         } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
-            e.printStackTrace(); // Print the stack trace to understand what went wrong
+            e.printStackTrace();
         }
     }
 
@@ -57,3 +57,5 @@ public class Sound {
     }
 
 }
+
+// REFERENCE: https://youtu.be/nUHh_J2Acy8?si=IWpi4-TtdJql9vch

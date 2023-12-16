@@ -1,15 +1,27 @@
 package enemies;
 import screens.GameScreen;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 
 public class Bird extends Enemy{
 	private double SPEED = 2.0;
 	private static final int DAMAGE = 25;
 	private double originalSpeed;
+	private static final Image sprite = new Image("assets/sprites/bird.png");
+	protected static final double RADIUS = 20.0;
 	
 	public Bird(double sceneWidth, double sceneHeight, GameScreen scene) {
 		super(sceneWidth, sceneHeight, scene);
 		this.getObject().setFill(Color.ORANGE);
+		
+		image = new ImageView(sprite);
+		image.setFitWidth(RADIUS * 4); 
+		image.setFitHeight(RADIUS * 4);
+		image.setPreserveRatio(true);
+		image.setVisible(true);
+		
+		updateImagePosition();
 	}
 	@Override
 	protected double getSpeed() {
@@ -28,12 +40,13 @@ public class Bird extends Enemy{
 	public void updatePosition() {
         if (!collided) {
             
-            objectY -= getSpeed(); // Use dynamic speed
+            objectY -= getSpeed();
             object.setCenterX(objectX);
             object.setCenterY(objectY);
+            updateImagePosition();
         } else {
         	if (slowingDown) {
-                double frameDuration = 0.016; // Assuming 60 FPS
+                double frameDuration = 0.016; 
                 slowdownTimer -= frameDuration;
 
                 if (slowdownTimer > 0) {
@@ -43,9 +56,10 @@ public class Bird extends Enemy{
                     SPEED = 0;
                     slowingDown = false;
                 }
-                objectY -= SPEED; // Use dynamic speed
+                objectY -= SPEED; 
                 object.setCenterX(objectX);
                 object.setCenterY(objectY);
+                updateImagePosition();
             }
         	
         	
@@ -55,18 +69,22 @@ public class Bird extends Enemy{
 	
 	private double calculateSpeed() {
 		double timer = scene.getGeneralTimer();
-        double speedIncreaseRate = 0.033; // Adjust this rate according to your preference
+        double speedIncreaseRate = 0.033; 
         
-        // Speed increases linearly with the generalTimer, capped at 5 after 60 seconds
         double increasedSpeed = SPEED + (speedIncreaseRate * timer);
         return Math.min(increasedSpeed, 5.0); // Cap the speed at 5
 	}
+	
+	private void updateImagePosition() {
+    	image.setLayoutX(objectX - RADIUS); 
+        image.setLayoutY(objectY - RADIUS);
+    }
 	
 	public void initiateSlowdown() {
         if (!slowingDown) {
             slowingDown = true;
             slowdownTimer = SLOWDOWN_DURATION;
-            originalSpeed = getSpeed(); // Capture the current speed of the sprite
+            originalSpeed = getSpeed(); 
         }
     }
 	
