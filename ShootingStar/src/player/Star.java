@@ -15,6 +15,7 @@ import items.Shimmer;
 public class Star {
 	private Sound soundEffect;
 	private Sound lowHealthSound;
+	private Sound constantTwinkle;
     private double objectX;
     public double objectY;
     private ImageView starImage;
@@ -32,12 +33,17 @@ public class Star {
     private String damageText = "";
     private static final double INVINCIBILITY_DURATION = 1.0;
     private static final double VITALITY_DECREMENT_VALUE = 1.0;
-    private static final double OBJECT_RADIUS = 20.0;
+    private static final double OBJECT_RADIUS = 13.0;
     private Set<KeyCode> pressedKeys = new HashSet<>();   
     
     public Star(double sceneWidth, double sceneHeight) {
     	soundEffect = new Sound();
     	lowHealthSound = new Sound();
+    	constantTwinkle = new Sound();
+    	
+    	constantTwinkle.setFile(5);
+    	constantTwinkle.setVolume(0.85f);
+    	constantTwinkle.play();
     	
     	this.objectX = sceneWidth / 2;
     	this.objectY = sceneHeight / 2;
@@ -52,8 +58,8 @@ public class Star {
     	
     	Image image = new Image("assets/sprites/star.png");
         starImage = new ImageView(image);
-        starImage.setFitWidth(OBJECT_RADIUS * 2.5);
-        starImage.setFitHeight(OBJECT_RADIUS * 2.5);
+        starImage.setFitWidth(OBJECT_RADIUS * 4.5);
+        starImage.setFitHeight(OBJECT_RADIUS * 4.5);
         starImage.setPreserveRatio(true);
         starImage.setVisible(true);
         
@@ -112,6 +118,7 @@ public class Star {
     	
     		
     	if (vitality < 1) {
+    		constantTwinkle.stop();
     		collided = true;
     		starImage.setVisible(false);
             enemy.hasCollided(true);
@@ -182,6 +189,7 @@ public class Star {
     	if (vitality < 40 && !isLowHealthSoundPlaying && vitality > 0) {
     		lowHealthSound.setFile(2);
     		lowHealthSound.play();
+    		lowHealthSound.loop(2);
             isLowHealthSoundPlaying = true;
         } else if ((vitality >= 40 || vitality == 0) && isLowHealthSoundPlaying) {
     		lowHealthSound.stop();

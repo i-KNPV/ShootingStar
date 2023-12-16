@@ -5,6 +5,8 @@ import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -16,6 +18,7 @@ import java.util.ArrayList;
 import application.Sound;
 import player.Star;
 import enemies.Enemy;
+import enemies.Laser;
 import enemies.Rocket;
 import enemies.Bird;
 import items.Item;
@@ -27,6 +30,7 @@ public class GameScreen {
     private Star star;
     private Sound sound;
     private Sound bgmusic;
+    private Sound noise;
     private Text messageText;
     private Text timerText;
     private Text gameOverText;
@@ -59,10 +63,21 @@ public class GameScreen {
 		
 		bgmusic = new Sound();
 		sound = new Sound();
+		noise = new Sound();
 		playMusic(1);
+		
+		noise.setFile(8);
+		noise.play();
+		noise.loop(8);
 		
 		root = new Group();
 		Scene scene = new Scene(root, 600, 800, Color.WHITE);
+		
+		Image background = new Image("assets/background/main.gif");
+		ImageView view_bg = new ImageView(background);
+		view_bg.setFitHeight(800);
+        view_bg.setPreserveRatio(true);
+        root.getChildren().add(view_bg);
 		
 		star = new Star(scene.getWidth(), scene.getHeight());		
 		root.getChildren().add(star.getObject());
@@ -76,14 +91,14 @@ public class GameScreen {
 		timerText = createTimerText();	
 		
 		countdownText = new Text();
-	    countdownText.setFont(Font.font("TTMarxianaW05-Grotesque", FontWeight.BOLD, 48));
+	    countdownText.setFont(Font.font("Titan One", FontWeight.BOLD, 48));
 	    countdownText.setFill(Color.BLACK);
 	    countdownText.setTextAlignment(TextAlignment.CENTER);
 	    countdownText.setVisible(false); // Initially invisible
 	    root.getChildren().add(countdownText);
 	    
 	    damageText = new Text();
-        damageText.setFont(Font.font("TTMarxianaW05-Grotesque", FontWeight.BOLD, 18));
+        damageText.setFont(Font.font("Titan One", FontWeight.BOLD, 18));
         damageText.setFill(Color.RED);
         damageText.setLayoutX(100); 
         damageText.setLayoutY(20);
@@ -106,7 +121,7 @@ public class GameScreen {
 		generalTimerText.setVisible(true);
 		
 		vitalityText = new Text("Vitality: 100");
-	    vitalityText.setFont(Font.font("TTMarxianaW05-Grotesque", FontWeight.BOLD, 18));
+	    vitalityText.setFont(Font.font("Titan One", FontWeight.BOLD, 18));
 	    vitalityText.setFill(Color.BLACK);
 	    vitalityText.setLayoutX((scene.getWidth() - vitalityText.getLayoutBounds().getWidth()) / 2);
 	    vitalityText.setLayoutY(timerBox.getLayoutY() + timerBox.getHeight() + 20); 
@@ -201,6 +216,7 @@ public class GameScreen {
 	
 	private void spawnEnemy() {
 		if (generalTimer > 10.0) {
+			triggerLaser();
 			Rocket rocket = new Rocket(getScene().getWidth(), getScene().getHeight(), this);
 	        root.getChildren().add(rocket.getImage());
 	        Enemy.addEnemy(rocket);
@@ -230,6 +246,7 @@ public class GameScreen {
 	private void stopGame() {
         if (!abort) {
         	stopMusic();
+        	noise.stop();
         	
             star.stopMovement();
             star.setGameActive(false);
@@ -301,6 +318,11 @@ public class GameScreen {
 		enemySpawnCount = value;
 	}
 	
+	public void triggerLaser() {
+		Laser laser = new Laser(root.getScene().getWidth(), root.getScene().getHeight(), root); // root is your root container
+        laser.activate(star); // player is your Star instance
+	}
+	
 	public double getGeneralTimer() {
 		return generalTimer;
 	}
@@ -311,7 +333,7 @@ public class GameScreen {
 	
 	private Text createGameOverText() {
 		Text text = new Text();
-        text.setFont(Font.font("Arial", FontWeight.BOLD, 24));
+        text.setFont(Font.font("Titan One", FontWeight.BOLD, 24));
         text.setFill(Color.RED);
         text.setTextAlignment(TextAlignment.CENTER);
         text.setLayoutX(root.getScene().getWidth() / 2 - 200);
@@ -366,7 +388,7 @@ public class GameScreen {
 
     private Text createMessageText() {
         Text text = new Text("Out of bounds! Return to play area immediately!");
-        text.setFont(Font.font("Arial", FontWeight.BOLD, 18));
+        text.setFont(Font.font("Titan One", FontWeight.BOLD, 18));
         text.setFill(Color.RED);
         text.setTextAlignment(TextAlignment.CENTER);
         text.setLayoutX(root.getScene().getWidth() / 2 - 200);
@@ -377,7 +399,7 @@ public class GameScreen {
 
     private Text createTimerText() {
         Text text = new Text("Return in 5 seconds");
-        text.setFont(Font.font("Arial", FontWeight.BOLD, 16));
+        text.setFont(Font.font("Titan One", FontWeight.BOLD, 16));
         text.setFill(Color.RED);
         text.setTextAlignment(TextAlignment.CENTER);
         text.setLayoutX(root.getScene().getWidth() / 2 - 100);
@@ -388,7 +410,7 @@ public class GameScreen {
     
     private Text createGeneralTimerText() {
         Text text = new Text("");
-        text.setFont(Font.font("TTMarxianaW05-Grotesque", FontWeight.BOLD, 30));
+        text.setFont(Font.font("Titan One", FontWeight.BOLD, 30));
         text.setFill(Color.BLACK);
         text.setTextAlignment(TextAlignment.CENTER);
         text.setLayoutY(80);

@@ -14,7 +14,7 @@ public class Shimmer extends Item{
 	private Circle object;
 	protected double objectX;
     protected double objectY;
-    private final static double ITEM_RADIUS = 13.0;
+    private final static double ITEM_RADIUS = 20.0;
     private final static int HEALTH = 40;
     private double SPEED;
     private double originalSpeed;
@@ -26,12 +26,14 @@ public class Shimmer extends Item{
 		this.objectX = generateRandomX();
 	    this.objectY = sceneHeight; 
 		this.object = new Circle(objectX, objectY, ITEM_RADIUS, Color.PINK);
+		this.object.setVisible(false);
 		this.SPEED = 2.0;
 		
-		sound.setFile(5);
+		sound.setFile(7);
 		sound.play();
+		sound.loop(7);
 		
-		Image sprite = new Image("assets/sprites/shimmer.png");
+		Image sprite = new Image("assets/sprites/shimmer.gif");
 		image = new ImageView(sprite);
 		image.setFitWidth(ITEM_RADIUS * 2.5); 
 		image.setFitHeight(ITEM_RADIUS * 2.5);

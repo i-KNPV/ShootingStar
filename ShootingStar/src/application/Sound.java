@@ -16,10 +16,13 @@ public class Sound {
     public Sound() {
         soundURL[0] = getClass().getResource("/assets/sounds/hurt.wav");
         soundURL[1] = getClass().getResource("/assets/sounds/bg_music.wav");
-        soundURL[2] = getClass().getResource("/assets/sounds/danger1.wav");
+        soundURL[2] = getClass().getResource("/assets/sounds/danger2.wav");
         soundURL[3] = getClass().getResource("/assets/sounds/death.wav");
         soundURL[4] = getClass().getResource("/assets/sounds/obtain_shimmer.wav");
         soundURL[5] = getClass().getResource("/assets/sounds/shimmer.wav");
+        soundURL[6] = getClass().getResource("/assets/sounds/overture.wav");
+        soundURL[7] = getClass().getResource("/assets/sounds/twinkle.wav");
+        soundURL[8] = getClass().getResource("/assets/sounds/noise.wav");
     }
 
     public void setFile(int i) {

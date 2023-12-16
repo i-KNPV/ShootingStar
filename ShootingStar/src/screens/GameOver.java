@@ -27,8 +27,8 @@ public class GameOver{
         this.screen = screen;
     	
     	Group root = new Group();
-        Image tryAgain = new Image("assets/buttons/tryAgain.png");
-        Image returnToMainMenu = new Image("assets/buttons/returnToMainMenu.png");
+        Image tryAgain = new Image("assets/buttons/retry.png");
+        Image returnToMainMenu = new Image("assets/buttons/return.png");
         
         ImageView view_tryAgain = new ImageView(tryAgain);
         ImageView view_returnToMainMenu = new ImageView(returnToMainMenu);
