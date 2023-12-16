@@ -2,18 +2,22 @@ package player;
 
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
-
 import java.util.HashSet;
 import java.util.Set;
 
+import application.Sound;
 import enemies.Enemy;
 import items.Shimmer;
 
 public class Star {
-
+	private Sound soundEffect;
+	private Sound lowHealthSound;
     private double objectX;
     public double objectY;
+    private ImageView starImage;
     private Circle object;
     private Movement movement;
     private int vitality;
@@ -22,6 +26,7 @@ public class Star {
     private boolean collided;
     private boolean isInvincible = false;
     private boolean gameActive = true;
+    private boolean isLowHealthSoundPlaying = false;
     private double invincibilityTime = 0;
     private double vitalityDecrementTimer = 0;
     private String damageText = "";
@@ -31,14 +36,29 @@ public class Star {
     private Set<KeyCode> pressedKeys = new HashSet<>();   
     
     public Star(double sceneWidth, double sceneHeight) {
+    	soundEffect = new Sound();
+    	lowHealthSound = new Sound();
+    	
     	this.objectX = sceneWidth / 2;
     	this.objectY = sceneHeight / 2;
     	this.object = new Circle(objectX, objectY, OBJECT_RADIUS, Color.YELLOW);
+    	this.object.setVisible(false);
+    	
     	this.movement = new Movement();
     	this.sceneWidth = sceneWidth;
     	this.sceneHeight = sceneHeight;
     	this.collided = false;
     	this.vitality = 100;
+    	
+    	Image image = new Image("assets/sprites/star.png");
+        starImage = new ImageView(image);
+        starImage.setFitWidth(OBJECT_RADIUS * 2.5); // Set the size of the image
+        starImage.setFitHeight(OBJECT_RADIUS * 2.5);
+        starImage.setPreserveRatio(true);
+        starImage.setVisible(true);
+        
+        
+        updateImagePosition();
     }
 
     public Circle getObject() {
@@ -74,20 +94,29 @@ public class Star {
         }
     }
     
+    private void updateImagePosition() {
+    	starImage.setLayoutX(objectX - OBJECT_RADIUS); // Adjust position to align with the circle
+        starImage.setLayoutY(objectY - OBJECT_RADIUS);
+    }
     
     public void handleCollisions(Enemy enemy) {
     	if (!isInvincible && enemy.isCollidedWithStar(this)) {
     		int damage = enemy.getDamage();
+    		soundEffect.setFile(0);
+    		soundEffect.play();
     		vitality -= damage;
     		isInvincible = true; // Set invincibility
             invincibilityTime = 0; // Reset invincibility timer
             damageText = "-" + damage;
     	}
+    	
     		
-    	if (vitality < 0) {
+    	if (vitality < 1) {
     		collided = true;
+    		starImage.setVisible(false);
             enemy.hasCollided(true);
             stopMovement(); // Stop Star's movement upon collision
+            vitality = 0;
     	}
 	}
     
@@ -128,6 +157,7 @@ public class Star {
 	        // Update position of the object
 	        object.setCenterX(objectX);
 	    	object.setCenterY(objectY);
+	    	updateImagePosition();
     	} else {
     		movement.stopVertical();
     		movement.stopHorizontal();
@@ -148,6 +178,15 @@ public class Star {
             	}
             }
     	}
+    	
+    	if (vitality < 40 && !isLowHealthSoundPlaying && vitality > 0) {
+    		lowHealthSound.setFile(2);
+    		lowHealthSound.play();
+            isLowHealthSoundPlaying = true;
+        } else if ((vitality >= 40 || vitality == 0) && isLowHealthSoundPlaying) {
+    		lowHealthSound.stop();
+            isLowHealthSoundPlaying = false;
+        }
     }
     
     public void setGameActive(boolean isActive) {
@@ -169,5 +208,19 @@ public class Star {
 	
 	public void setVitality(int newValue) {
 		vitality = newValue;
+	}
+	
+	public ImageView getStarImage() {
+		return starImage;
+	}
+
+	
+	public void reset() {
+		vitality = 100;
+		collided = false;
+		gameActive = true;
+		isInvincible = false;
+		invincibilityTime = 0;
+	    vitalityDecrementTimer = 0;
 	}
 }

@@ -10,9 +10,10 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
+import javafx.scene.shape.Rectangle;
 import java.util.ArrayList;
 
-import player.Sprite;
+import application.Sound;
 import player.Star;
 import enemies.Enemy;
 import enemies.Rocket;
@@ -24,16 +25,21 @@ public class GameScreen {
 	private Stage primaryStage;
 	private Group root;
     private Star star;
+    private Sound sound;
+    private Sound bgmusic;
     private Text messageText;
     private Text timerText;
     private Text gameOverText;
     private Text generalTimerText;
     private Text countdownText;
     private Text damageText;
+    private Rectangle timerBox;
     private AnimationTimer countdownTimer;
+    private AnimationTimer gameLoopTimer;
     private int countdownValue = 5;
     private double outOfBoundsTimer = 5.0;
     private double generalTimer = 0.0;
+    private double highScore;
     private boolean abort = false;
     private boolean countdownRunning = false;
     
@@ -47,50 +53,70 @@ public class GameScreen {
     private long lastShimmerSpawnTime = 0;
     private final long SHIMMER_SPAWN_INTERVAL = 20_000_000_000L;
     
-    public GameScreen(Stage primaryStage) {
+    public GameScreen(Stage primaryStage, double highScore) {
 		this.primaryStage = primaryStage;
+		this.highScore = highScore;
+		
+		bgmusic = new Sound();
+		sound = new Sound();
+		playMusic(1);
+		
 		root = new Group();
 		Scene scene = new Scene(root, 600, 800, Color.WHITE);
 		
 		star = new Star(scene.getWidth(), scene.getHeight());		
 		root.getChildren().add(star.getObject());
+		root.getChildren().add(star.getStarImage());
 		
 		gameOverText = createGameOverText();
 		root.getChildren().add(gameOverText);
 		gameOverText.setVisible(false);
 		
-		generalTimerText = createGeneralTimerText();
-		root.getChildren().add(generalTimerText);
-		generalTimerText.setVisible(true);
-		
 		messageText = createMessageText();
-		timerText = createTimerText();
-		
-		vitalityText = new Text("Vitality: 100");
-	    vitalityText.setFont(Font.font("Arial", FontWeight.BOLD, 18));
-	    vitalityText.setFill(Color.BLACK);
-	    vitalityText.setLayoutX(10); // Position at top left
-	    vitalityText.setLayoutY(20); // Adjust this value as needed
-	    root.getChildren().add(vitalityText);
+		timerText = createTimerText();	
 		
 		countdownText = new Text();
-	    countdownText.setFont(Font.font("Arial", FontWeight.BOLD, 48));
+	    countdownText.setFont(Font.font("TTMarxianaW05-Grotesque", FontWeight.BOLD, 48));
 	    countdownText.setFill(Color.BLACK);
 	    countdownText.setTextAlignment(TextAlignment.CENTER);
 	    countdownText.setVisible(false); // Initially invisible
 	    root.getChildren().add(countdownText);
 	    
 	    damageText = new Text();
-        damageText.setFont(Font.font("Arial", FontWeight.BOLD, 18));
+        damageText.setFont(Font.font("TTMarxianaW05-Grotesque", FontWeight.BOLD, 18));
         damageText.setFill(Color.RED);
         damageText.setLayoutX(100); // Adjust position as needed
         damageText.setLayoutY(20);
         root.getChildren().add(damageText);
+        
+        timerBox = new Rectangle(200, 50); // Adjust size as needed
+        timerBox.setArcWidth(20); // Rounded corners
+        timerBox.setArcHeight(20);
+        timerBox.setFill(Color.WHITE);
+        timerBox.setStroke(Color.BLACK);
+        timerBox.setVisible(true);
+        timerBox.setWidth(100); 
+	    timerBox.setHeight(50); 
+	    timerBox.setLayoutX((root.getScene().getWidth() - timerBox.getWidth()) / 2);
+	    timerBox.setLayoutY(45); 
+        root.getChildren().add(timerBox);
+        
+        generalTimerText = createGeneralTimerText();
+		root.getChildren().add(generalTimerText);
+		generalTimerText.setVisible(true);
+		
+		vitalityText = new Text("Vitality: 100");
+	    vitalityText.setFont(Font.font("TTMarxianaW05-Grotesque", FontWeight.BOLD, 18));
+	    vitalityText.setFill(Color.BLACK);
+	    vitalityText.setLayoutX((scene.getWidth() - vitalityText.getLayoutBounds().getWidth()) / 2);
+	    vitalityText.setLayoutY(timerBox.getLayoutY() + timerBox.getHeight() + 20); // 20 is the margin
+	    root.getChildren().add(vitalityText);
+
 	
 		scene.setOnKeyPressed(event -> star.handleKeyPress(event.getCode()));
 		scene.setOnKeyReleased(event -> star.handleKeyRelease(event.getCode()));
 		
-		AnimationTimer timer = new AnimationTimer() {
+		gameLoopTimer = new AnimationTimer() {
             @Override
             public void handle(long now) {
             	long currentTime = System.nanoTime();
@@ -121,7 +147,10 @@ public class GameScreen {
             	ArrayList<Item> itemsToRemove = new ArrayList<>();
             	for (Item item : Item.getItems()) {
         	        if (item instanceof Shimmer && star.isCollidedWithShimmer((Shimmer) item)) {
-        	            star.setVitality(((Shimmer) item).hasCollided(star));
+        	  
+        	        	playSoundEffect(4);
+        	            
+        	        	star.setVitality(((Shimmer) item).hasCollided(star));
         	            root.getChildren().remove(item.getObject());
         	            itemsToRemove.add(item);
         	        }
@@ -161,7 +190,7 @@ public class GameScreen {
                 handleTimer();
             }
         };
-        timer.start(); // Start the timer to continuously update the star's position
+       gameLoopTimer.start();
 	}
 	
 	public Scene getScene() {
@@ -192,13 +221,15 @@ public class GameScreen {
 	private void handleCollisions() { 
 		System.out.println(star.getVitality());
 
-		if (star.getVitality() < 0){
+		if (star.getVitality() < 1){
 			stopGame();
 		}
 	}
 	
 	private void stopGame() {
         if (!abort) {
+        	stopMusic();
+        	
             star.stopMovement();
             star.setGameActive(false);
             abort = true;
@@ -211,8 +242,12 @@ public class GameScreen {
             for (Item item : Item.getItems()) {
                 if (item instanceof Shimmer) {
                     ((Shimmer) item).initiateSlowdown(); // Initiate slowdown for each Shimmer
+                    ((Shimmer) item).stopSoundEffect();
                 }
             }
+            
+            playSoundEffect(3);
+         
         }
     }
 	
@@ -244,6 +279,7 @@ public class GameScreen {
 	    if (countdownValue > 0) {
 	        countdownText.setText(Integer.toString(countdownValue--));
 	    } else {
+	    	gameLoopTimer.stop();
 	        countdownTimer.stop();
 	        countdownText.setVisible(false); // Hide when countdown is over
 	        countdownRunning = false;
@@ -252,7 +288,7 @@ public class GameScreen {
 	}
 	
 	private void showGameOverScreen() {
-		GameOver gameOverScreen = new GameOver(root.getScene().getWidth(), root.getScene().getHeight());
+		GameOver gameOverScreen = new GameOver(root.getScene().getWidth(), root.getScene().getHeight(), primaryStage, this);
 		primaryStage.setScene(gameOverScreen.getScene());
 	}
 
@@ -264,12 +300,12 @@ public class GameScreen {
 		enemySpawnCount = value;
 	}
 	
-	private void resetSpawnCount() {
-		enemySpawnCount = 0;
-	}
-	
 	public double getGeneralTimer() {
 		return generalTimer;
+	}
+	
+	public double getHighScore() {
+		return highScore;
 	}
 	
 	private Text createGameOverText() {
@@ -288,14 +324,20 @@ public class GameScreen {
 			generalTimerText.setFont(Font.font("Arial", FontWeight.BOLD, 30));
 	    	generalTimerText.setTextAlignment(TextAlignment.CENTER);
 	    	generalTimerText.setLayoutX((root.getScene().getWidth() - generalTimerText.getLayoutBounds().getWidth()) / 2);
-	    	generalTimerText.setLayoutY(root.getScene().getHeight() / 2);
+	    	generalTimerText.setLayoutY((root.getScene().getHeight() / 2) + 32);
+		    timerBox.setLayoutX((root.getScene().getWidth() - timerBox.getWidth()) / 2);
+		    timerBox.setLayoutY(root.getScene().getHeight() / 2); 
 		}
 		
-		if(!root.getChildren().contains(generalTimerText)) {
-			root.getChildren().add(generalTimerText);
-		}
+		if (!root.getChildren().contains(timerBox)) {
+	        root.getChildren().add(timerBox);
+	    }
+	    if (!root.getChildren().contains(generalTimerText)) {
+	        root.getChildren().add(generalTimerText);
+	    }
 		
-		generalTimerText.setText(String.format("Time elapsed: %.2f", generalTimer));
+	    generalTimerText.setLayoutX((root.getScene().getWidth() - generalTimerText.getLayoutBounds().getWidth()) / 2);
+		generalTimerText.setText(String.format("%.0f", generalTimer));
 		
 	}
 	
@@ -344,15 +386,54 @@ public class GameScreen {
     }
     
     private Text createGeneralTimerText() {
-    	Text text = new Text("Time elapsed: ");
-    	text.setFont(Font.font("Arial", FontWeight.BOLD, 18));
+        Text text = new Text("");
+        text.setFont(Font.font("TTMarxianaW05-Grotesque", FontWeight.BOLD, 30));
         text.setFill(Color.BLACK);
-        text.setTextAlignment(TextAlignment.RIGHT);
-        text.setLayoutX(root.getScene().getWidth() - 50 - text.getLayoutBounds().getWidth());
-        text.setLayoutY(30);
+        text.setTextAlignment(TextAlignment.CENTER);
+        text.setLayoutY(80);
         text.setVisible(true);
         text.toFront();
+
+        // Bind the layoutX property to keep the text centered
+        text.setLayoutX(((root.getScene().getWidth() - text.getLayoutBounds().getWidth()) / 2) - 8);
+
         return text;
+    }
+    
+    public void playMusic(int i) {
+    	bgmusic.setFile(i);
+    	bgmusic.setVolume(0.85f);
+    	bgmusic.play();
+    }
+    
+    public void stopMusic() {
+    	bgmusic.stop();
+    }
+    
+    public void playSoundEffect(int i) {
+    	sound.setFile(i);
+    	sound.play();
+    }
+   
+    public void resetGame() {
+    	star.reset();
+    	
+    	root.getChildren().clear();
+    	
+    	ArrayList<Enemy> enemiesToRemove = new ArrayList<>();
+    	ArrayList<Item> itemsToRemove = new ArrayList<>();
+    	for (Enemy enemy: Enemy.getEnemies()) enemy.reset();
+    	for (Item item: Item.getItems()) item.reset();
+    	
+    	Item.getItems().removeAll(itemsToRemove);
+    	Enemy.getEnemies().removeAll(enemiesToRemove);
+    	Enemy.clearEnemies();
+    	Item.clearItems();
+    	enemySpawnCount = 0;
+    	generalTimer = 0.0;
+    	abort = false;
+    	lastShimmerSpawnTime = 0;
     	
     }
+    
 }

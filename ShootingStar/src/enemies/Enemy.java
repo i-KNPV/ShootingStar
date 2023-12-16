@@ -32,6 +32,10 @@ public class Enemy extends Sprite{
     	return enemies;
     }
     
+    public static void clearEnemies() {
+        enemies.clear();
+    }
+    
     public static void addEnemy(Enemy enemy) {
     	enemies.add(enemy);
     }
@@ -42,6 +46,12 @@ public class Enemy extends Sprite{
     
     public boolean isOutOfBounds() {
     	return objectY < 0 - ENEMY_RADIUS;
+    }
+    
+    public void reset() {
+    	collided = false;
+    	slowingDown = false;
+    	SPEED = 3.0;
     }
 
 }

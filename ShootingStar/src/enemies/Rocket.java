@@ -1,15 +1,10 @@
 package enemies;
 
 import screens.GameScreen;
-
-import java.util.concurrent.TimeUnit;
-
 import javafx.scene.paint.Color;
 
 public class Rocket extends Enemy{
 	private double SPEED = 8.0;
-	private static final double UPPER_WAIT = 3.0;
-	private static final double LOWER_WAIT = 1;
 	private static final int DAMAGE = 50;
 	private double originalSpeed;
 	
@@ -64,11 +59,9 @@ public class Rocket extends Enemy{
         }
     }
 	
-	public long getUpperWait() {
-		return TimeUnit.SECONDS.toNanos((long) UPPER_WAIT);
-	}
-	
-	public long getLowerWait() {
-		return TimeUnit.SECONDS.toNanos((long) LOWER_WAIT);
-	}	
+	@Override
+	public void reset() {
+    	super.reset();
+    	SPEED = 8.0;
+    }	
 }

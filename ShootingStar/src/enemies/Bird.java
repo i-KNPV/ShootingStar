@@ -1,12 +1,9 @@
 package enemies;
 import screens.GameScreen;
 import javafx.scene.paint.Color;
-import java.util.concurrent.TimeUnit;
 
 public class Bird extends Enemy{
 	private double SPEED = 2.0;
-	private static final double UPPER_WAIT = 1.0;
-	private static final double LOWER_WAIT = 0.25;
 	private static final int DAMAGE = 25;
 	private double originalSpeed;
 	
@@ -73,11 +70,9 @@ public class Bird extends Enemy{
         }
     }
 	
-	public long getUpperWait() {
-		return TimeUnit.SECONDS.toNanos((long) UPPER_WAIT);
-	}
-	
-	public long getLowerWait() {
-		return TimeUnit.SECONDS.toNanos((long) LOWER_WAIT);
-	}	
+	@Override
+	public void reset() {
+    	super.reset();
+    	SPEED = 2.0;
+    }	
 }

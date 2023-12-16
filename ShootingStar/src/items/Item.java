@@ -31,6 +31,10 @@ public class Item extends Sprite{
     public static void addItem(Item item) {
     	items.add(item);
     }
+    
+    public static void clearItems() {
+        items.clear();
+    }
 	
 	 public void updatePosition() {
 	        if (!collided) {
@@ -73,4 +77,12 @@ public class Item extends Sprite{
 	 public boolean isOutOfBounds() {
 	    return objectY < 0 - ENEMY_RADIUS;
 	 }
+	 
+	 public void reset() {
+	        collided = false;
+	        slowingDown = false;
+	        SPEED = 2.0;
+	        // Reset other state variables as needed
+	    }
+
 }
