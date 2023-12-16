@@ -1,3 +1,10 @@
+# 0.0.7 (2023-12-16 20:18)
+
+### Release Highlights
+- Prepared project code for milestone submission
+- Added sprites to enemies and shimmer
+- Fixed bugs
+
 # 0.0.6 (2023-12-16 18:47)
 
 ### Release Highlights
