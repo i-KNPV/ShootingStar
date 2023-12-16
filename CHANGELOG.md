@@ -1,3 +1,10 @@
+# 0.0.6 (2023-12-16 18:47)
+
+### Release Highlights
+- Added background music and SFX
+- Revamped timer and vitality
+- Added sprite to Star
+
 # 0.0.5 (2023-12-15 14:52)
 
 ### Release Highlights
