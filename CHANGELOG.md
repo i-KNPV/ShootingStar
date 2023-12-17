@@ -1,3 +1,20 @@
+# 0.0.9 (2023-12-17 21:36)
+
+### Release Highlights
+- Added logo animations
+- Added star animations in background of main menu
+- Refactored and reorganized create Text classes
+- Fixed bugs
+
+# 0.0.8 (2023-12-17 1:40) (UNSTABLE RELEASE)
+
+### Release Highlights 
+- Revamped main menu
+- Revamped background with animation
+- Added music
+- Added Laser enemy prototype
+- Fixed bugs
+
 # 0.0.7 (2023-12-16 20:18)
 
 ### Release Highlights
