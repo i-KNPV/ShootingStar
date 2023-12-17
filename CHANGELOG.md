@@ -6,9 +6,10 @@
 - Refactored and reorganized create Text classes
 - Fixed bugs
 
-# 0.0.8 (2023-12-17 1:40) (UNSTABLE RELEASE)
+# 0.0.8 (2023-12-17 1:40) 
 
 ### Release Highlights 
+- Note: UNSTABLE RELEASE
 - Revamped main menu
 - Revamped background with animation
 - Added music
