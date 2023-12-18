@@ -21,6 +21,7 @@ import enemies.Enemy;
 import enemies.Laser;
 import enemies.Rocket;
 import enemies.Bird;
+import items.Boost;
 import items.Item;
 import items.Shimmer;
 
@@ -41,9 +42,11 @@ public class GameScreen {
     private AnimationTimer countdownTimer;
     private AnimationTimer gameLoopTimer;
     private int countdownValue = 5;
+    private double laserInterval = 1.0;
     private double outOfBoundsTimer = 5.0;
     private double generalTimer = 0.0;
     private double highScore;
+    private boolean hasLaser = false;
     private boolean abort = false;
     private boolean countdownRunning = false;
     
@@ -53,6 +56,9 @@ public class GameScreen {
     private final long NANOSECONDS_PER_SECOND = 500_000_000;
     private long lastSpawnTime = 0;
     private final long spawnInterval = NANOSECONDS_PER_SECOND; 
+    
+    private long lastBoostSpawnTime = 0;
+    private final long BOOST_SPAWN_INTERVAL = 50_000_000_000L; // 50 seconds in nanoseconds
     
     private long lastShimmerSpawnTime = 0;
     private final long SHIMMER_SPAWN_INTERVAL = 20_000_000_000L;
@@ -78,6 +84,8 @@ public class GameScreen {
 		view_bg.setFitHeight(800);
         view_bg.setPreserveRatio(true);
         root.getChildren().add(view_bg);
+        
+        this.lastBoostSpawnTime = System.nanoTime();
 		
 		star = new Star(scene.getWidth(), scene.getHeight());		
 		root.getChildren().add(star.getObject());
@@ -128,6 +136,11 @@ public class GameScreen {
             	    lastShimmerSpawnTime = currentTime;
             	}
             	
+            	if (currentTime - lastBoostSpawnTime >= BOOST_SPAWN_INTERVAL) {
+                    spawnBoost();
+                    lastBoostSpawnTime = currentTime;
+                }
+            	
             	ArrayList<Enemy> enemiesToRemove = new ArrayList<>();
             	for (Enemy enemy: Enemy.getEnemies()) {
             		enemy.updatePosition();
@@ -142,13 +155,23 @@ public class GameScreen {
             	
             	ArrayList<Item> itemsToRemove = new ArrayList<>();
             	for (Item item : Item.getItems()) {
-        	        if (item instanceof Shimmer && star.isCollidedWithShimmer((Shimmer) item)) {
+        	        if (item instanceof Shimmer && star.isCollidedWith((Shimmer) item)) {
         	  
         	        	playSoundEffect(4);
         	            
         	        	star.setVitality(((Shimmer) item).hasCollided(star));
-        	        	 root.getChildren().remove(item.getImage()); 
-        	        	 root.getChildren().remove(item.getObject()); 
+        	        	root.getChildren().remove(item.getImage()); 
+        	        	root.getChildren().remove(item.getObject()); 
+        	            itemsToRemove.add(item);
+        	        }
+        	        
+        	        if (item instanceof Boost && star.isCollidedWith((Boost) item)) {
+        	        	  
+        	        	playSoundEffect(4);
+        	            
+        	        	star.addBoost();
+        	        	root.getChildren().remove(item.getImage()); 
+        	        	root.getChildren().remove(item.getObject()); 
         	            itemsToRemove.add(item);
         	        }
         	        
@@ -163,6 +186,10 @@ public class GameScreen {
             	for (Item item : Item.getItems()) {
                     if (item instanceof Shimmer) {
                         ((Shimmer) item).updatePosition();
+                    }
+
+                    if (item instanceof Boost) {
+                        ((Boost) item).updatePosition();
                     }
                 }
             	
@@ -194,9 +221,20 @@ public class GameScreen {
 		return root.getScene();
 	}
 	
+	public Group getRoot() {
+		return root;
+	}
+	
 	private void spawnEnemy() {
 		if (generalTimer > 10.0) {
-			// triggerLaser();
+			if (!hasLaser && laserInterval < 0) {
+				triggerLaser();
+				
+				// Reset laser interval
+				laserInterval = 25.0;
+				hasLaser = true;
+			}
+
 			Rocket rocket = new Rocket(getScene().getWidth(), getScene().getHeight(), this);
 	        root.getChildren().add(rocket.getImage());
 	        Enemy.addEnemy(rocket);
@@ -213,6 +251,12 @@ public class GameScreen {
 	    root.getChildren().add(shimmer.getObject());
 	    root.getChildren().add(shimmer.getImage());
 	    Item.addItem(shimmer);
+	}
+	
+	private void spawnBoost() {
+	    Boost boost = new Boost(root.getScene().getWidth(), root.getScene().getHeight(), this);
+	    root.getChildren().add(boost.getImage());
+	    Item.addItem(boost);
 	}
 	
 	private void handleCollisions() { 
@@ -311,7 +355,7 @@ public class GameScreen {
 	}
 	
 	public void triggerLaser() {
-		Laser laser = new Laser(root.getScene().getWidth(), root.getScene().getHeight(), root); // root is your root container
+		Laser laser = new Laser(root.getScene().getWidth(), root.getScene().getHeight(), this); // root is your root container
         laser.activate(star); // player is your Star instance
 	}
 	
@@ -323,8 +367,17 @@ public class GameScreen {
 		return highScore;
 	}
 	
+	public void setHasLaser(boolean hasLaserCheck) {
+		hasLaser = hasLaserCheck;
+	}
+	
 	private void handleTimer() {
-		if (!abort) generalTimer += 0.016;
+		if (!abort) {
+			generalTimer += 0.016;
+			if (generalTimer > 20) {
+				laserInterval -= 0.016;
+			}
+		}
 		else {
 			generalTimerText.setFont(loadCustomFont("/assets/fonts/TitanOne-Regular.ttf", 30));
 	    	generalTimerText.setTextAlignment(TextAlignment.CENTER);

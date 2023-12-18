@@ -5,21 +5,22 @@ public class Movement {
 	private double velocityY;
 	private static final double SPEED = 6.0;
 	public static final double WIND_FORCE = -2;
+	private double speedMultiplier = 1.0;
 	
     public void moveLeft() {
-        velocityX = -SPEED;
+        velocityX = -SPEED * speedMultiplier;
     }
 
     public void moveRight() {
-        velocityX = SPEED;
+        velocityX = SPEED * speedMultiplier;
     }
 
     public void moveUp() {
-        velocityY = WIND_FORCE * SPEED;
+        velocityY = WIND_FORCE * SPEED * speedMultiplier;
     }
 
     public void moveDown() {
-        velocityY = SPEED;
+        velocityY = SPEED * speedMultiplier;
     }
     
     public void stopVertical() {
@@ -37,4 +38,13 @@ public class Movement {
     public double getVelocityY() {
         return velocityY;
     }
+    
+    public void setSpeedMultiplier(double multiplier) {
+        this.speedMultiplier = multiplier;
+    }
+
+    public double getSpeedMultiplier() {
+        return this.speedMultiplier;
+    }
+
 }

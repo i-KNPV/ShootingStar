@@ -23,7 +23,7 @@ public class Sound {
         soundURL[6] = getClass().getResource("/assets/sounds/overture.wav");
         soundURL[7] = getClass().getResource("/assets/sounds/twinkle.wav");
         soundURL[8] = getClass().getResource("/assets/sounds/noise.wav");
-        soundURL[9] = getClass().getResource("/assets/sounds/goldrush.wav");
+        soundURL[9] = getClass().getResource("/assets/sounds/laser.wav");
     }
 
     public void setFile(int i) {

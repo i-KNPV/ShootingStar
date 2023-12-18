@@ -2,14 +2,16 @@ package player;
 
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.util.Duration;
+import javafx.animation.PauseTransition;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import java.util.HashSet;
-import java.util.Set;
 
 import application.Sound;
 import enemies.Enemy;
+import items.Item;
 import items.Shimmer;
 
 public class Star {
@@ -30,13 +32,24 @@ public class Star {
     private boolean isLowHealthSoundPlaying = false;
     private double invincibilityTime = 0;
     private double vitalityDecrementTimer = 0;
+    private double boostSpeedMultiplier = 2.0;
     private String damageText = "";
     private static final double INVINCIBILITY_DURATION = 1.0;
     private static final double VITALITY_DECREMENT_VALUE = 1.0;
     private static final double OBJECT_RADIUS = 13.0;
-    private Set<KeyCode> pressedKeys = new HashSet<>();   
+    private HashSet<KeyCode> pressedKeys = new HashSet<>();
+    
+    private static final int EMPTY = 0;
+    private static final int BOOST = 1;
+    private static final int INVINCIBLE = 2;
+    private int inventory; 
+    
+    private static final Image NORMAL = new Image("assets/sprites/star.png");
+    private static final Image HURT = new Image("assets/sprites/star_hurt.png");
     
     public Star(double sceneWidth, double sceneHeight) {
+    	inventory = EMPTY;
+    	
     	soundEffect = new Sound();
     	lowHealthSound = new Sound();
     	constantTwinkle = new Sound();
@@ -56,29 +69,32 @@ public class Star {
     	this.collided = false;
     	this.vitality = 100;
     	
-    	Image image = new Image("assets/sprites/star.png");
-        starImage = new ImageView(image);
+    	starImage = new ImageView(NORMAL);
         starImage.setFitWidth(OBJECT_RADIUS * 4.5);
         starImage.setFitHeight(OBJECT_RADIUS * 4.5);
         starImage.setPreserveRatio(true);
         starImage.setVisible(true);
-        
-        
         updateImagePosition();
     }
 
     public Circle getObject() {
     	return object;
     }
-  
     
     public void handleKeyPress(KeyCode keyCode) {
     	pressedKeys.add(keyCode);
+    	if (keyCode == KeyCode.SPACE && inventory == BOOST) {
+            applyBoost();
+        }
         updateMovement();
     }
     
     public void handleKeyRelease(KeyCode keyCode) {
     	pressedKeys.remove(keyCode);
+    	if (keyCode == KeyCode.SPACE && inventory == BOOST) {
+            resetBoost();
+            clearInventory();
+        }
         updateMovement();
     }
     
@@ -108,12 +124,21 @@ public class Star {
     public void handleCollisions(Enemy enemy) {
     	if (!isInvincible && enemy.isCollidedWithStar(this)) {
     		int damage = enemy.getDamage();
+    		
     		soundEffect.setFile(0);
     		soundEffect.play();
     		vitality -= damage;
     		isInvincible = true;
             invincibilityTime = 0; 
             damageText = "-" + damage;
+            
+            // Switch to HURT sprite
+            starImage.setImage(HURT);
+            
+            // Start a pause transition
+            PauseTransition pause = new PauseTransition(Duration.seconds(0.5));
+            pause.setOnFinished(e -> starImage.setImage(NORMAL)); // Switch back to NORMAL sprite
+            pause.play();
     	}
     	
     		
@@ -139,9 +164,9 @@ public class Star {
 		return collided;
 	}
 	
-	public boolean isCollidedWithShimmer(Shimmer shimmer) {
-	    Circle shimmerObject = shimmer.getObject();
-	    return shimmerObject.getBoundsInParent().intersects(this.object.getBoundsInParent());
+	public boolean isCollidedWith(Item item) {
+	    Circle object = item.getObject();
+	    return object.getBoundsInParent().intersects(this.object.getBoundsInParent());
 	}
 
     
@@ -231,4 +256,25 @@ public class Star {
 		invincibilityTime = 0;
 	    vitalityDecrementTimer = 0;
 	}
+	
+	public void addBoost() {
+		inventory = BOOST;
+	}
+	
+	public void addInvincible() {
+		inventory = INVINCIBLE;
+	}
+	
+	private void clearInventory() {
+		inventory = EMPTY;
+	}
+	
+	private void applyBoost() {
+        movement.setSpeedMultiplier(boostSpeedMultiplier);
+    }
+
+    private void resetBoost() {
+        movement.setSpeedMultiplier(1.0); // Reset to normal speed
+    }
+
 }

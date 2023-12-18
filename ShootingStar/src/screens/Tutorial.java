@@ -25,7 +25,6 @@ public class Tutorial {
     private Stage primaryStage;
     private Scene tutorialScene;
     private double highScore;
-    private Sound sound;
 
     private List<TutorialPage> tutorialPages;
     private int currentPageIndex;
@@ -33,8 +32,6 @@ public class Tutorial {
     public Tutorial(Stage primaryStage, double highScore) {
         this.primaryStage = primaryStage;
         this.highScore = highScore;
-        this.sound = new Sound();
-        playMusic();
 
         // Load the background image
         Image backgroundImage = new Image("assets/background/spacebg.gif");
@@ -98,14 +95,6 @@ public class Tutorial {
         this.tutorialScene = new Scene(stackPane, 600, 800);
         this.currentPageIndex = 0; // Initialize the current page index
     }
-    
-    
-    
-    
-    
-    
-    
-    
 
     public Scene getScene() {
         return tutorialScene;
@@ -131,17 +120,6 @@ public class Tutorial {
             // If there are no more pages, return to the main menu
             showMainMenu();
         }
-    }
-
-
-    private void playMusic() {
-        sound.setFile(6);
-        sound.play();
-        sound.loop(6);
-    }
-
-    private void stopMusic() {
-        sound.stop();
     }
 
     private VBox createPageContent(TutorialPage page) {

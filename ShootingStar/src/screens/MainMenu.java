@@ -146,8 +146,7 @@ public class MainMenu {
         upDownAnimation.setAutoReverse(true); // Automatically reverse the direction
         upDownAnimation.setCycleCount(TranslateTransition.INDEFINITE); // Repeat indefinitely
         upDownAnimation.play();
-       
-        
+
         initializeStarAnimation();
     }
     
@@ -166,7 +165,6 @@ public class MainMenu {
     
     private void showTutorial() {
     	System.out.println("Switching to the Tutorial Screen");
-    	stopMusic();
     	Tutorial tutorial = new Tutorial(primaryStage, highScore);
     	primaryStage.setTitle("Shooting Star [Game Screen] [alpha]");
         primaryStage.setScene(tutorial.getScene());
@@ -174,7 +172,6 @@ public class MainMenu {
 
     private void showCredits() {
         System.out.println("Switching to the Credits Screen");
-        stopMusic();
         Credits credits = new Credits(primaryStage);
         primaryStage.setTitle("Shooting Star [Credits] [alpha]");
         primaryStage.setScene(credits.getScene());
@@ -195,8 +192,6 @@ public class MainMenu {
         timeline.setCycleCount(Timeline.INDEFINITE);
         timeline.play();
     }
-    
-    
     
     private void spawnStar() {
         ImageView star = new ImageView(new Image("assets/sprites/star.png"));

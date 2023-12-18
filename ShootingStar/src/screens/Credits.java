@@ -20,12 +20,9 @@ import java.util.List;
 public class Credits {
     private Stage primaryStage;
     private Scene creditsScene;
-    private Sound sound;
 
     public Credits(Stage primaryStage) {
         this.primaryStage = primaryStage;
-        this.sound = new Sound();
-        playMusic();
 
         Image backgroundImage = new Image("assets/background/spacebg.gif");
         ImageView view_bg = new ImageView(backgroundImage);
@@ -100,16 +97,6 @@ public class Credits {
         imageView.setFitHeight(imageWithPath.getHeight());
         imageView.setPreserveRatio(true);
         return imageView;
-    }
-
-    private void playMusic() {
-        sound.setFile(9);
-        sound.play();
-        sound.loop(9);
-    }
-
-    private void stopMusic() {
-        sound.stop();
     }
 
     private static class ImageWithPath {
