@@ -22,7 +22,6 @@ import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-
 public class MainMenu {
 	private Sound sound;
     private Stage primaryStage;
@@ -90,6 +89,15 @@ public class MainMenu {
             showGameScreen();
         });
 
+        tutorialButton.setOnAction(event -> {
+            System.out.println("Tutorial button clicked"); // Debug print
+            showTutorial();
+        });
+        
+        creditsButton.setOnAction(event -> {
+            System.out.println("Credits button clicked"); // Debug print
+            showCredits();
+        });
         // storeButton.setOnAction(event -> showStoreScreen());
         // settingsButton.setOnAction(event -> showSettingsScreen());
 
@@ -154,6 +162,22 @@ public class MainMenu {
     	GameScreen gameScreen = new GameScreen(primaryStage, highScore);
     	primaryStage.setTitle("Shooting Star [Game Screen] [alpha]");
         primaryStage.setScene(gameScreen.getScene());
+    }
+    
+    private void showTutorial() {
+    	System.out.println("Switching to the Tutorial Screen");
+    	stopMusic();
+    	Tutorial tutorial = new Tutorial(primaryStage, highScore);
+    	primaryStage.setTitle("Shooting Star [Game Screen] [alpha]");
+        primaryStage.setScene(tutorial.getScene());
+    }
+
+    private void showCredits() {
+        System.out.println("Switching to the Credits Screen");
+        stopMusic();
+        Credits credits = new Credits(primaryStage);
+        primaryStage.setTitle("Shooting Star [Credits] [alpha]");
+        primaryStage.setScene(credits.getScene());
     }
     
     private void playMusic() {
