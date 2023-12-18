@@ -44,7 +44,7 @@ public class Boost extends Item{
 	
 	public void hasCollided(Star star) {
 	    this.collided = true;
-	    star.addBoost();
+	    star.viewInventory().addBoost();
 	}
 	
 	public void updatePosition() {

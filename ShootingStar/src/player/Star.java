@@ -18,6 +18,7 @@ public class Star {
 	private Sound soundEffect;
 	private Sound lowHealthSound;
 	private Sound constantTwinkle;
+	public Inventory inventory;
     private double objectX;
     public double objectY;
     private ImageView starImage;
@@ -32,23 +33,19 @@ public class Star {
     private boolean isLowHealthSoundPlaying = false;
     private double invincibilityTime = 0;
     private double vitalityDecrementTimer = 0;
-    private double boostSpeedMultiplier = 2.0;
     private String damageText = "";
     private static final double INVINCIBILITY_DURATION = 1.0;
     private static final double VITALITY_DECREMENT_VALUE = 1.0;
     private static final double OBJECT_RADIUS = 13.0;
     private HashSet<KeyCode> pressedKeys = new HashSet<>();
-    
-    private static final int EMPTY = 0;
-    private static final int BOOST = 1;
-    private static final int INVINCIBLE = 2;
-    private int inventory; 
+ 
     
     private static final Image NORMAL = new Image("assets/sprites/star.png");
     private static final Image HURT = new Image("assets/sprites/star_hurt.png");
     
     public Star(double sceneWidth, double sceneHeight) {
-    	inventory = EMPTY;
+    	inventory = new Inventory();
+        inventory.clearInventory();
     	
     	soundEffect = new Sound();
     	lowHealthSound = new Sound();
@@ -83,22 +80,20 @@ public class Star {
     
     public void handleKeyPress(KeyCode keyCode) {
     	pressedKeys.add(keyCode);
-    	if (keyCode == KeyCode.SPACE && inventory == BOOST) {
-            applyBoost();
+    	if (keyCode == KeyCode.SPACE && inventory.getInventory() == 1) {
+            inventory.applyBoost(movement);
+            inventory.clearInventory();
         }
-        updateMovement();
     }
     
     public void handleKeyRelease(KeyCode keyCode) {
     	pressedKeys.remove(keyCode);
-    	if (keyCode == KeyCode.SPACE && inventory == BOOST) {
-            resetBoost();
-            clearInventory();
+    	if (keyCode == KeyCode.SPACE) {
+            inventory.resetBoost(movement);    
         }
-        updateMovement();
     }
     
-    private void updateMovement() {
+    public void updateMovement() {
     	if (pressedKeys.contains(KeyCode.UP)) {
             movement.moveUp();
         } else if (pressedKeys.contains(KeyCode.DOWN)) {
@@ -246,6 +241,14 @@ public class Star {
 	public ImageView getStarImage() {
 		return starImage;
 	}
+	
+	public Inventory viewInventory() {
+		return inventory;
+	}
+	
+	public Movement getMovement() {
+		return movement;
+	}
 
 	
 	public void reset() {
@@ -257,24 +260,6 @@ public class Star {
 	    vitalityDecrementTimer = 0;
 	}
 	
-	public void addBoost() {
-		inventory = BOOST;
-	}
 	
-	public void addInvincible() {
-		inventory = INVINCIBLE;
-	}
-	
-	private void clearInventory() {
-		inventory = EMPTY;
-	}
-	
-	private void applyBoost() {
-        movement.setSpeedMultiplier(boostSpeedMultiplier);
-    }
-
-    private void resetBoost() {
-        movement.setSpeedMultiplier(1.0); // Reset to normal speed
-    }
 
 }

@@ -16,6 +16,7 @@ import javafx.scene.shape.Rectangle;
 import java.util.ArrayList;
 
 import application.Sound;
+import player.Inventory;
 import player.Star;
 import enemies.Enemy;
 import enemies.Laser;
@@ -29,6 +30,7 @@ public class GameScreen {
 	private Stage primaryStage;
 	private Group root;
     private Star star;
+    private Inventory inventory;
     private Sound sound;
     private Sound bgmusic;
     private Sound noise;
@@ -87,7 +89,8 @@ public class GameScreen {
         
         this.lastBoostSpawnTime = System.nanoTime();
 		
-		star = new Star(scene.getWidth(), scene.getHeight());		
+		star = new Star(scene.getWidth(), scene.getHeight());	
+		this.inventory = star.viewInventory();
 		root.getChildren().add(star.getObject());
 		root.getChildren().add(star.getStarImage());
 		
@@ -101,7 +104,7 @@ public class GameScreen {
 		countdownText = createCountdownText();
 		countdownText.setLayoutX(((scene.getWidth() - countdownText.getLayoutBounds().getWidth()) / 2) - 20);
 		countdownText.setLayoutY((scene.getHeight() / 2) - countdownText.getLayoutBounds().getHeight());
-     
+		positionInventoryImage();
         
         generalTimerText = createGeneralTimerText();
 		generalTimerText.setVisible(true);
@@ -169,7 +172,7 @@ public class GameScreen {
         	        	  
         	        	playSoundEffect(4);
         	            
-        	        	star.addBoost();
+        	        	star.viewInventory().addBoost();
         	        	root.getChildren().remove(item.getImage()); 
         	        	root.getChildren().remove(item.getObject()); 
         	            itemsToRemove.add(item);
@@ -207,7 +210,7 @@ public class GameScreen {
                     }).start();
                 }
     
-                
+                star.updateMovement();
                 star.updatePosition();
                 handleCollisions();
                 handleOutOfBoundsMessages();
@@ -340,6 +343,21 @@ public class GameScreen {
 	        showGameOverScreen();
 	    }
 	}
+	
+	private void positionInventoryImage() {
+        ImageView inventoryImage = inventory.getImage();
+
+        double timerBoxX = timerBox.getLayoutX();
+        double timerBoxY = timerBox.getLayoutY();
+        double timerBoxWidth = timerBox.getWidth();
+        double timerBoxHeight = timerBox.getHeight();
+
+        // Position the inventory image beside the timer box
+        inventoryImage.setLayoutX(timerBoxX + timerBoxWidth + 10); // 10 is a small gap
+        inventoryImage.setLayoutY(timerBoxY + (timerBoxHeight - inventoryImage.getFitHeight()) / 2); // Align vertically with timer box
+
+        root.getChildren().add(inventoryImage); // Add inventory image to the root node
+    }
 	
 	private void showGameOverScreen() {
 		GameOver gameOverScreen = new GameOver(root.getScene().getWidth(), root.getScene().getHeight(), primaryStage, this);
