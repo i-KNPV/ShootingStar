@@ -1,3 +1,12 @@
+# 0.1.0 (2023-12-18 22:26)
+
+### Release Highlights
+- Feature: Added boost powerup
+- Feature: Added star inventory
+- Finalized laser enemy
+- Updated sprites
+- Fixed main menu bugs
+
 # 0.0.9 (2023-12-17 21:36)
 
 ### Release Highlights
