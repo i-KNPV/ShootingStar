@@ -6,22 +6,30 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
+import javafx.util.Duration;
+import enemies.Enemy;
+import items.Item;
+import javafx.animation.FadeTransition;
 import javafx.geometry.Pos;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 public class GameOver{
     private Scene scene;
+    private final static Image BGSPRITE = new Image("assets/background/game_over_splash.png");
+    private ImageView image;
     private GameScreen screen;
     private Stage primaryStage;
-    private Text gameOverText;
     private double highScore;
     private double score;
+    private int globalHighVitality;
+    private int localHighVitality;
 
     public GameOver(double width, double height, Stage primaryStage, GameScreen screen) {
         this.screen = screen;
@@ -32,9 +40,10 @@ public class GameOver{
         
         ImageView view_tryAgain = new ImageView(tryAgain);
         ImageView view_returnToMainMenu = new ImageView(returnToMainMenu);
+        image = new ImageView(BGSPRITE);
         
-        view_tryAgain.setFitWidth(100);
-        view_returnToMainMenu.setFitWidth(100);
+        view_tryAgain.setFitWidth(200);
+        view_returnToMainMenu.setFitWidth(200);
         
         view_tryAgain.setPreserveRatio(true);
         view_returnToMainMenu.setPreserveRatio(true);
@@ -54,15 +63,29 @@ public class GameOver{
         VBox buttonsLayout = new VBox(-10);
         buttonsLayout.setAlignment(Pos.CENTER);
         buttonsLayout.getChildren().addAll(tryAgainButton, returnToMainMenuButton);
-        buttonsLayout.setTranslateY(height / 2 + 100);
-  
-        gameOverText = new Text("Game Over");
-        gameOverText.setFont(Font.font("Arial", FontWeight.BOLD, 48));
-        gameOverText.setFill(Color.RED);
-        gameOverText.setTextAlignment(TextAlignment.CENTER);
-        gameOverText.setLayoutX(width / 2 - gameOverText.getLayoutBounds().getWidth() / 2);
-        gameOverText.setLayoutY(height / 2);
-        root.getChildren().addAll(gameOverText, buttonsLayout);
+        buttonsLayout.setLayoutX((width - view_tryAgain.getFitWidth()) / 2);
+        buttonsLayout.setTranslateY(height / 2 + 200);
+      
+        
+        root.getChildren().addAll(image, buttonsLayout);
+        
+     // Create a rectangle to cover the entire scene for the fade-in effect
+        Rectangle fadeRectangle = new Rectangle(width, height);
+        fadeRectangle.setFill(Color.WHITE);
+        fadeRectangle.setOpacity(1); // Start fully opaque
+
+        // Add the fadeRectangle to the root
+        root.getChildren().add(fadeRectangle);
+
+        // Set up the fade-in transition
+        FadeTransition fadeIn = new FadeTransition(Duration.seconds(3), fadeRectangle);
+        fadeIn.setFromValue(1);
+        fadeIn.setToValue(0);
+        fadeIn.setOnFinished(event -> root.getChildren().remove(fadeRectangle)); // Remove rectangle after transition
+
+        // Start the fade-in transition
+        fadeIn.play();
+        
         scene = new Scene(root, width, height, Color.BLACK);
         this.primaryStage = primaryStage;
         
@@ -70,7 +93,14 @@ public class GameOver{
         highScore = screen.getHighScore();
         highScore = compareScores(highScore, score);
         
+        localHighVitality = screen.getLocalHighVitality();
+        globalHighVitality = screen.getGlobalHighVitality();
+        globalHighVitality = compareScores(localHighVitality, globalHighVitality);
+        
+        System.out.println(Item.getItems());
+        System.out.println(Enemy.getEnemies());
         System.out.println(highScore);
+        System.out.println(globalHighVitality);
     }
 
     public Scene getScene() {
@@ -82,15 +112,26 @@ public class GameOver{
     	else return high;
     }
     
+    private int compareScores(int score, int high) {
+    	if (high < score) return score;
+    	else return high;
+    }
+    
     private void resetGame() {
-    	screen.resetGame();
+    	System.out.println( "Restarting!" );
     	
-        GameScreen gameScreen = new GameScreen(primaryStage, highScore);
+    	screen.resetGame();
+    	primaryStage.close();
+        GameScreen gameScreen = new GameScreen(primaryStage, highScore, globalHighVitality);
         primaryStage.setScene(gameScreen.getScene());
+        primaryStage.show();
+        
+        System.out.println(screen.getGeneralTimer());
+        System.out.println(gameScreen.getGeneralTimer());
     }
     
     private void showMainMenu() {
-    	MainMenu mainMenu = new MainMenu(primaryStage, highScore);
+    	MainMenu mainMenu = new MainMenu(primaryStage, highScore, globalHighVitality);
     	primaryStage.setScene(mainMenu.getScene());
     }
     

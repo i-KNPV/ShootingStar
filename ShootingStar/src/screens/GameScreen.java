@@ -1,7 +1,9 @@
 package screens;
 
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import javafx.animation.AnimationTimer;
+import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 import javafx.scene.Group;
 import javafx.scene.Scene;
@@ -34,6 +36,7 @@ public class GameScreen {
     private Sound sound;
     private Sound bgmusic;
     private Sound noise;
+    private Rectangle whiteCover;
     private Text messageText;
     private Text timerText;
     private Text gameOverText;
@@ -48,6 +51,8 @@ public class GameScreen {
     private double outOfBoundsTimer = 5.0;
     private double generalTimer = 0.0;
     private double highScore;
+    private int globalHighVitality;
+    private int localHighVitality = 100;
     private boolean hasLaser = false;
     private boolean abort = false;
     private boolean countdownRunning = false;
@@ -65,9 +70,10 @@ public class GameScreen {
     private long lastShimmerSpawnTime = 0;
     private final long SHIMMER_SPAWN_INTERVAL = 20_000_000_000L;
     
-    public GameScreen(Stage primaryStage, double highScore) {
+    public GameScreen(Stage primaryStage, double highScore, int highVitality) {
 		this.primaryStage = primaryStage;
 		this.highScore = highScore;
+		this.globalHighVitality = highVitality;
 		
 		bgmusic = new Sound();
 		sound = new Sound();
@@ -122,6 +128,12 @@ public class GameScreen {
 		scene.setOnKeyPressed(event -> star.handleKeyPress(event.getCode()));
 		scene.setOnKeyReleased(event -> star.handleKeyRelease(event.getCode()));
 		
+		whiteCover = new Rectangle(0, 0, scene.getWidth(), scene.getHeight());
+        whiteCover.setFill(Color.WHITE);
+        whiteCover.setOpacity(0);
+        whiteCover.setVisible(false);
+        root.getChildren().add(whiteCover);
+		
 		gameLoopTimer = new AnimationTimer() {
             @Override
             public void handle(long now) {
@@ -134,12 +146,12 @@ public class GameScreen {
                     lastSpawnTime = currentTime;
                 }  
             	
-            	if (currentTime - lastShimmerSpawnTime >= SHIMMER_SPAWN_INTERVAL) {
+            	if (currentTime - lastShimmerSpawnTime >= SHIMMER_SPAWN_INTERVAL && !abort) {
             	    spawnShimmer();
             	    lastShimmerSpawnTime = currentTime;
             	}
             	
-            	if (currentTime - lastBoostSpawnTime >= BOOST_SPAWN_INTERVAL) {
+            	if (currentTime - lastBoostSpawnTime >= BOOST_SPAWN_INTERVAL && !abort) {
                     spawnBoost();
                     lastBoostSpawnTime = currentTime;
                 }
@@ -162,7 +174,7 @@ public class GameScreen {
         	  
         	        	playSoundEffect(4);
         	            
-        	        	star.setVitality(((Shimmer) item).hasCollided(star));
+        	        	star.setVitality(((Shimmer) item).hasCollided(star), getScreen());
         	        	root.getChildren().remove(item.getImage()); 
         	        	root.getChildren().remove(item.getObject()); 
         	            itemsToRemove.add(item);
@@ -170,7 +182,7 @@ public class GameScreen {
         	        
         	        if (item instanceof Boost && star.isCollidedWith((Boost) item)) {
         	        	  
-        	        	playSoundEffect(4);
+        	        	playSoundEffect(10);
         	            
         	        	star.viewInventory().addBoost();
         	        	root.getChildren().remove(item.getImage()); 
@@ -263,8 +275,6 @@ public class GameScreen {
 	}
 	
 	private void handleCollisions() { 
-		System.out.println(star.getVitality());
-
 		if (star.getVitality() < 1){
 			stopGame();
 		}
@@ -289,10 +299,14 @@ public class GameScreen {
         	stopMusic();
         	noise.stop();
         	
+        	generalTimerText.setVisible(false);
+            timerBox.setVisible(false);
+            vitalityText.setVisible(false);
+            inventory.getImage().setVisible(false);
+
             star.stopMovement();
             star.setGameActive(false);
             abort = true;
-            showCountdown();
 
             for (Enemy enemy : Enemy.getEnemies()) {
                 enemy.initiateSlowdown(); // Initiate slowdown for each enemy
@@ -303,46 +317,24 @@ public class GameScreen {
                     ((Shimmer) item).initiateSlowdown(); // Initiate slowdown for each Shimmer
                     ((Shimmer) item).stopSoundEffect();
                 }
+                
+                if (item instanceof Boost) {
+                    ((Boost) item).initiateSlowdown(); // Initiate slowdown for each Boost on screen
+                }
             }
             
             playSoundEffect(3);
-         
+            
+            whiteCover.setVisible(true);
+            whiteCover.toFront();
+            FadeTransition fadeTransition = new FadeTransition(Duration.seconds(3), whiteCover);
+            fadeTransition.setFromValue(0);
+            fadeTransition.setToValue(1);
+            fadeTransition.setOnFinished(event -> showGameOverScreen());
+            fadeTransition.play();
+
         }
     }
-	
-	private void showCountdown() {
-		if (!countdownRunning) {
-			countdownValue = 5; // Reset countdown value
-		    countdownText.setText(Integer.toString(countdownValue));
-		    countdownText.setVisible(true); 
-
-	        countdownTimer = new AnimationTimer() {
-	            private long lastUpdate = 0;
-	            private final long countdownDuration = 1_000_000_000; // 1 second
-
-	            @Override
-	            public void handle(long now) {
-	                if (now - lastUpdate >= countdownDuration) {
-	                    lastUpdate = now;
-	                    updateCountdown();
-	                }
-	            }
-	        };
-	        countdownTimer.start();
-		}
-	}
-	
-	private void updateCountdown() {
-	    if (countdownValue > 0) {
-	        countdownText.setText(Integer.toString(countdownValue--));
-	    } else {
-	    	gameLoopTimer.stop();
-	        countdownTimer.stop();
-	        countdownText.setVisible(false); 
-	        countdownRunning = false;
-	        showGameOverScreen();
-	    }
-	}
 	
 	private void positionInventoryImage() {
         ImageView inventoryImage = inventory.getImage();
@@ -383,6 +375,10 @@ public class GameScreen {
 	
 	public double getHighScore() {
 		return highScore;
+	}
+	
+	public int getHighVitality() {
+		return globalHighVitality;
 	}
 	
 	public void setHasLaser(boolean hasLaserCheck) {
@@ -539,8 +535,13 @@ public class GameScreen {
     public void resetGame() {
     	star.reset();
     	
-    	root.getChildren().clear();
+    	gameLoopTimer.stop();
+    	enemySpawnCount = 0;
+    	generalTimer = 0.0;
+    	abort = false;
+    	lastShimmerSpawnTime = 0;
     	
+    	root.getChildren().clear();
     	ArrayList<Enemy> enemiesToRemove = new ArrayList<>();
     	ArrayList<Item> itemsToRemove = new ArrayList<>();
     	for (Enemy enemy: Enemy.getEnemies()) enemy.reset();
@@ -550,11 +551,23 @@ public class GameScreen {
     	Enemy.getEnemies().removeAll(enemiesToRemove);
     	Enemy.clearEnemies();
     	Item.clearItems();
-    	enemySpawnCount = 0;
-    	generalTimer = 0.0;
-    	abort = false;
-    	lastShimmerSpawnTime = 0;
-    	
+
     }
+    
+    public GameScreen getScreen() {
+    	return this;
+    }
+    
+    public int getLocalHighVitality() {
+		return localHighVitality;
+	}
+    
+	public void setLocalHighVitality(int vitality) {
+		localHighVitality = vitality;
+	}
+	
+	public int getGlobalHighVitality() {
+		return globalHighVitality;
+	}
     
 }

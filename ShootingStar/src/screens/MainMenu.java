@@ -27,13 +27,15 @@ public class MainMenu {
     private Stage primaryStage;
     private Scene scene;
     private double highScore;
+    private int highVitality;
     private StackPane mainMenuLayout;
     private Pane starContainer;
     private AnimationTimer animation;
 
-    public MainMenu(Stage primaryStage, double highScore) {
+    public MainMenu(Stage primaryStage, double highScore, int highVitality) {
         this.primaryStage = primaryStage;
         this.highScore = highScore;
+        this.highVitality = highVitality;
         
         this.sound = new Sound();
         playMusic();
@@ -158,7 +160,7 @@ public class MainMenu {
     	System.out.println("Switching to the Game Screen");
     	stopMusic();
     	animation.stop();
-    	GameScreen gameScreen = new GameScreen(primaryStage, highScore);
+    	GameScreen gameScreen = new GameScreen(primaryStage, highScore, highVitality);
     	primaryStage.setTitle("Shooting Star [Game Screen] [alpha]");
         primaryStage.setScene(gameScreen.getScene());
     }

@@ -10,6 +10,7 @@ public class Bird extends Enemy{
 	private double originalSpeed;
 	private static final Image sprite = new Image("assets/sprites/bird.png");
 	protected static final double RADIUS = 20.0;
+	private double timer = 0;
 	
 	public Bird(double sceneWidth, double sceneHeight, GameScreen scene) {
 		super(sceneWidth, sceneHeight, scene);
@@ -68,7 +69,7 @@ public class Bird extends Enemy{
     }
 	
 	private double calculateSpeed() {
-		double timer = scene.getGeneralTimer();
+		timer = scene.getGeneralTimer();
         double speedIncreaseRate = 0.033; 
         
         double increasedSpeed = SPEED + (speedIncreaseRate * timer);

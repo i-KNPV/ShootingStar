@@ -3,6 +3,7 @@ package player;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
+import screens.GameScreen;
 import javafx.animation.PauseTransition;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -42,6 +43,7 @@ public class Star {
     
     private static final Image NORMAL = new Image("assets/sprites/star.png");
     private static final Image HURT = new Image("assets/sprites/star_hurt.png");
+    private static final Image DEAD = new Image("assets/sprites/star_death.png");
     
     public Star(double sceneWidth, double sceneHeight) {
     	inventory = new Inventory();
@@ -140,7 +142,7 @@ public class Star {
     	if (vitality < 1) {
     		constantTwinkle.stop();
     		collided = true;
-    		starImage.setVisible(false);
+    		starImage.setImage(DEAD);
             enemy.hasCollided(true);
             stopMovement();
             vitality = 0;
@@ -232,6 +234,11 @@ public class Star {
 	
 	public int getVitality() {
 		return vitality;
+	}
+	
+	public void setVitality(int newValue, GameScreen screen) {
+		if(screen.getLocalHighVitality() < newValue) screen.setLocalHighVitality(newValue);
+		vitality = newValue;
 	}
 	
 	public void setVitality(int newValue) {

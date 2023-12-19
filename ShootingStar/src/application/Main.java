@@ -11,7 +11,7 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        MainMenu mainMenu = new MainMenu(primaryStage, 0);
+        MainMenu mainMenu = new MainMenu(primaryStage, 0, 0);
         primaryStage.setScene(mainMenu.getScene());
         primaryStage.setTitle("Shooting Star [Main Menu][alpha]");
         primaryStage.setResizable(false);
