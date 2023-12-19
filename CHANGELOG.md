@@ -1,3 +1,14 @@
+# 0.1.1 (2023-12-19 16:30)
+
+### Release Highlights
+- Revamped game over screen
+- Added more reactive sprites for Star
+- Added death animation
+- Added screen transitions
+- Added high scores for time and vitality
+- Updated SFX
+- Fixed bugs
+
 # 0.1.0 (2023-12-18 22:26)
 
 ### Release Highlights
