@@ -56,6 +56,7 @@ public class Star {
     	constantTwinkle.setFile(5);
     	constantTwinkle.setVolume(0.85f);
     	constantTwinkle.play();
+    	constantTwinkle.loop(5);
     	
     	this.objectX = sceneWidth / 2;
     	this.objectY = sceneHeight / 2;

@@ -29,6 +29,11 @@ import items.Item;
 import items.Shimmer;
 
 public class GameScreen {
+	// Preload the images
+	private static final Image rocketImage = new Image("assets/sprites/rocket.png");
+	private static final Image shimmerImage = new Image("assets/sprites/shimmer.gif");
+	private static final Image boostImage = new Image("assets/sprites/boost.png");
+	
 	private Stage primaryStage;
 	private Group root;
     private Star star;
@@ -249,10 +254,7 @@ public class GameScreen {
 				laserInterval = 25.0;
 				hasLaser = true;
 			}
-
-			Rocket rocket = new Rocket(getScene().getWidth(), getScene().getHeight(), this);
-	        root.getChildren().add(rocket.getImage());
-	        Enemy.addEnemy(rocket);
+			spawnRocket();
 		}
 		
 		Bird bird = new Bird(getScene().getWidth(), getScene().getHeight(), this);
@@ -261,15 +263,23 @@ public class GameScreen {
 	    enemySpawnCount++;
     }
 	
+	private void spawnRocket() {
+		 ImageView rocketImageView = new ImageView(rocketImage);
+	     Rocket rocket = new Rocket(getScene().getWidth(), getScene().getHeight(), this, rocketImageView); // Pass the preloaded image
+	     root.getChildren().add(rocketImageView);
+	     Enemy.addEnemy(rocket);
+	}
+	
 	private void spawnShimmer() {
-	    Shimmer shimmer = new Shimmer(getScene().getWidth(), getScene().getHeight(), this);
-	    root.getChildren().add(shimmer.getObject());
-	    root.getChildren().add(shimmer.getImage());
+		ImageView shimmerImageView = new ImageView(shimmerImage);
+	    Shimmer shimmer = new Shimmer(getScene().getWidth(), getScene().getHeight(), this, shimmerImageView);
+	    root.getChildren().add(shimmerImageView);
 	    Item.addItem(shimmer);
 	}
 	
 	private void spawnBoost() {
-	    Boost boost = new Boost(root.getScene().getWidth(), root.getScene().getHeight(), this);
+		ImageView boostImageView = new ImageView(boostImage);
+	    Boost boost = new Boost(root.getScene().getWidth(), root.getScene().getHeight(), this, boostImageView);
 	    root.getChildren().add(boost.getImage());
 	    Item.addItem(boost);
 	}
@@ -521,6 +531,7 @@ public class GameScreen {
     	bgmusic.setFile(i);
     	bgmusic.setVolume(0.85f);
     	bgmusic.play();
+    	bgmusic.loop(i);
     }
     
     public void stopMusic() {

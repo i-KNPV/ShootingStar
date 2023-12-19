@@ -6,6 +6,8 @@ import javafx.animation.FadeTransition;
 import javafx.animation.SequentialTransition;
 import javafx.animation.Timeline;
 import javafx.animation.TranslateTransition;
+import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.animation.KeyFrame;
 import javafx.animation.PathTransition;
 import javafx.geometry.Pos;
@@ -25,6 +27,11 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 public class MainMenu {
+	private static final Image logo = new Image("assets/buttons/logo.png", 450, 450, false, true);
+	private static final Image play = new Image("assets/buttons/play.png");
+	private static final Image tutorial = new Image("assets/buttons/tutorial.png");
+	private static final Image credits = new Image("assets/buttons/credits.png");
+			
 	private Sound sound;
     private Stage primaryStage;
     private Scene scene;
@@ -58,12 +65,6 @@ public class MainMenu {
         mainMenuLayout.getChildren().add(starContainer);
         
         this.scene = new Scene(mainMenuLayout, 600, 800);
-
-        Image logo = new Image("assets/buttons/logo.png", 450, 450, false, true);
-        Image play = new Image("assets/buttons/play.png");
-        Image tutorial = new Image("assets/buttons/tutorial.png");
-        Image credits =  new Image("assets/buttons/credits.png");
-       
         ImageView view_logo = new ImageView(logo);
         ImageView view_play = new ImageView(play);
         ImageView view_tutorial = new ImageView(tutorial);
@@ -189,12 +190,22 @@ public class MainMenu {
     }
 
     private void showGameScreen() {
-    	System.out.println("Switching to the Game Screen");
-    	stopMusic();
-    	animation.stop();
-    	GameScreen gameScreen = new GameScreen(primaryStage, highScore, highVitality);
-    	primaryStage.setTitle("Shooting Star [Game Screen] [alpha]");
-        primaryStage.setScene(gameScreen.getScene());
+        System.out.println("Switching to the Game Screen");
+
+        Task<Void> gameScreenTask = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                GameScreen gameScreen = new GameScreen(primaryStage, highScore, highVitality);
+                Platform.runLater(() -> {
+                    stopMusic();
+                    animation.stop();
+                    primaryStage.setScene(gameScreen.getScene());
+                });
+                return null;
+            }
+        };
+
+        new Thread(gameScreenTask).start();
     }
     
     private void showTutorial() {

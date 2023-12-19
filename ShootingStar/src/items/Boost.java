@@ -18,9 +18,10 @@ public class Boost extends Item{
     private double SPEED;
     private double originalSpeed;
     
-    public Boost(double sceneWidth, double sceneHeight, GameScreen scene) {
+    public Boost(double sceneWidth, double sceneHeight, GameScreen scene, ImageView image) {
 		super(sceneWidth, sceneHeight, scene);
 		
+		this.image = image;
 		this.sound = new Sound();
 		this.objectX = generateRandomX();
 	    this.objectY = sceneHeight; 
@@ -28,8 +29,6 @@ public class Boost extends Item{
 		this.object.setVisible(false);
 		this.SPEED = 2.0;
 		
-		Image sprite = new Image("assets/sprites/boost.png");
-		image = new ImageView(sprite);
 		image.setFitWidth(ITEM_RADIUS * 2.5); 
 		image.setFitHeight(ITEM_RADIUS * 2.5);
 		image.setPreserveRatio(true);

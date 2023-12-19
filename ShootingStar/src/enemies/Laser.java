@@ -14,7 +14,7 @@ import player.Star;
 import application.Sound;
 import screens.GameScreen;
 
-public class Laser {
+public class Laser extends Enemy{
     private Rectangle warningRectangle;
     private ImageView view_laser;
     private Group root;
@@ -27,7 +27,8 @@ public class Laser {
     private static final Duration DISPERSE_DURATION = Duration.seconds(0.5);
 
     public Laser(double sceneWidth, double sceneHeight, GameScreen screen) {
-        this.root = screen.getRoot();
+        super(sceneWidth, sceneHeight, screen);
+    	this.root = screen.getRoot();
         this.screen = screen;
         this.sound = new Sound();
         
@@ -49,6 +50,7 @@ public class Laser {
         view_laser.setY(0);
 
         root.getChildren().addAll(warningRectangle, view_laser);
+  
     }
 
     public void activate(Star player) {
@@ -96,7 +98,8 @@ public class Laser {
             @Override
             public void handle(long now) {
                 if (view_laser.getOpacity() > 0 && view_laser.getBoundsInParent().intersects(player.getObject().getBoundsInParent())) {
-                    player.setVitality(player.getVitality() - DAMAGE);
+                	System.out.println("Star collided with Laser!");
+                	player.handleCollisions(getLaser());
                     this.stop();
                 }
             }
@@ -107,4 +110,22 @@ public class Laser {
     	sound.setFile(9);
     	sound.play();
     }
+    
+    @Override
+    public boolean isCollidedWithStar(Star star) {
+    	return true;
+    }
+    
+    private Laser getLaser() {
+    	return this;
+    }
+    
+    public int getDamage() {
+    	return DAMAGE;
+    }
+    
+    public void reset() {
+    	sound.stop();
+    }
+    
 }

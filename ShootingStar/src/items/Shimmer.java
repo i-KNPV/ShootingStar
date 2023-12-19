@@ -19,9 +19,10 @@ public class Shimmer extends Item{
     private double SPEED;
     private double originalSpeed;
 	
-	public Shimmer(double sceneWidth, double sceneHeight, GameScreen scene) {
+	public Shimmer(double sceneWidth, double sceneHeight, GameScreen scene, ImageView image) {
 		super(sceneWidth, sceneHeight, scene);
 		
+		this.image = image;
 		this.sound = new Sound();
 		this.objectX = generateRandomX();
 	    this.objectY = sceneHeight; 
@@ -32,9 +33,7 @@ public class Shimmer extends Item{
 		sound.setFile(7);
 		sound.play();
 		sound.loop(7);
-		
-		Image sprite = new Image("assets/sprites/shimmer.gif");
-		image = new ImageView(sprite);
+
 		image.setFitWidth(ITEM_RADIUS * 2.5); 
 		image.setFitHeight(ITEM_RADIUS * 2.5);
 		image.setPreserveRatio(true);

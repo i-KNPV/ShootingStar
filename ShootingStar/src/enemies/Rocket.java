@@ -10,14 +10,13 @@ public class Rocket extends Enemy{
 	private static final int DAMAGE = 50;
 	private double originalSpeed;
 	private ImageView image;
-	private static final Image sprite = new Image("assets/sprites/rocket.png");
 	protected static final double RADIUS = 20.0;
 	
-	public Rocket(double sceneWidth, double sceneHeight, GameScreen scene) {
+	public Rocket(double sceneWidth, double sceneHeight, GameScreen scene, ImageView rocketImage) {
 		super(sceneWidth, sceneHeight, scene);
+		this.image = rocketImage;
 		this.getObject().setFill(Color.RED);
 		
-		image = new ImageView(sprite);
 		image.setFitWidth(RADIUS * 4); 
 		image.setFitHeight(RADIUS * 4);
 		image.setPreserveRatio(true);
