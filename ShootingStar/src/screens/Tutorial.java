@@ -102,7 +102,7 @@ public class Tutorial {
 
     private void showMainMenu() {
         System.out.println("Switching back to the Main Menu");
-        MainMenu mainMenu = new MainMenu(primaryStage, 0, 0);
+        MainMenu mainMenu = new MainMenu(primaryStage, 0, 0, true);
         primaryStage.setTitle("Shooting Star [Main Menu] [alpha]");
         primaryStage.setScene(mainMenu.getScene());
     }

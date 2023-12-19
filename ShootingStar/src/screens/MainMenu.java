@@ -19,6 +19,8 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -28,14 +30,18 @@ public class MainMenu {
     private Scene scene;
     private double highScore;
     private int highVitality;
+    private Text highScoreText;
+    private Text highVitalityText;
     private StackPane mainMenuLayout;
+    private boolean hasDied;
     private Pane starContainer;
     private AnimationTimer animation;
 
-    public MainMenu(Stage primaryStage, double highScore, int highVitality) {
+    public MainMenu(Stage primaryStage, double highScore, int highVitality, boolean hasDied) {
         this.primaryStage = primaryStage;
         this.highScore = highScore;
         this.highVitality = highVitality;
+        this.hasDied = hasDied;
         
         this.sound = new Sound();
         playMusic();
@@ -113,11 +119,26 @@ public class MainMenu {
 
         mainMenuLayout.getChildren().addAll(logoLayout, buttonsLayout);
         
+        highScoreText = createHighScoreTimeText();
+        double highScoreTextY = (scene.getHeight() / 2) + 60 - (scene.getHeight() / 2);
+        
+        highVitalityText = createHighScoreVitalityText();
+        double highVitalityTextY = (scene.getHeight() / 2) + 80 - (scene.getHeight() / 2);
+
+
+        highScoreText.setTranslateY(highScoreTextY);
+        highVitalityText.setTranslateY(highVitalityTextY);
+        
+  
+        
         // White flash effect
         Rectangle whiteFlash = new Rectangle(scene.getWidth(), scene.getHeight(), Color.WHITE);
         mainMenuLayout.getChildren().add(whiteFlash);
 
-
+        if (hasDied) {
+        	mainMenuLayout.getChildren().addAll(highScoreText, highVitalityText);
+        }
+        
         // Fade out transition for white flash
         FadeTransition fadeOutFlash = new FadeTransition(Duration.seconds(3), whiteFlash);
         fadeOutFlash.setFromValue(1.0);
@@ -130,16 +151,23 @@ public class MainMenu {
         FadeTransition fadeInLogo = new FadeTransition(Duration.seconds(2), view_logo);
         fadeInLogo.setFromValue(0.0);
         fadeInLogo.setToValue(1.0);
-
+      
         // Fade in transition for buttons
         FadeTransition fadeInButtons = new FadeTransition(Duration.seconds(1), buttonsLayout);
         fadeInButtons.setFromValue(0.0);
         fadeInButtons.setToValue(1.0);
+        
+        FadeTransition fadeInHighScoreText = new FadeTransition(Duration.seconds(.25), highScoreText);
+        fadeInHighScoreText.setFromValue(0.0);
+        fadeInHighScoreText.setToValue(1.0);
 
+        FadeTransition fadeInHighVitalityText = new FadeTransition(Duration.seconds(.25), highVitalityText);
+        fadeInHighVitalityText.setFromValue(0.0);
+        fadeInHighVitalityText.setToValue(1.0);
 
         // Sequential transition to ensure order
         SequentialTransition sequentialTransition = new SequentialTransition();
-        sequentialTransition.getChildren().addAll(fadeOutFlash, fadeInLogo, fadeInButtons);
+        sequentialTransition.getChildren().addAll(fadeOutFlash, fadeInLogo, fadeInButtons, fadeInHighScoreText, fadeInHighVitalityText);
         sequentialTransition.play();
         
         TranslateTransition upDownAnimation = new TranslateTransition(Duration.seconds(1.5), view_logo);
@@ -154,6 +182,10 @@ public class MainMenu {
     
     public Scene getScene() {
         return scene;
+    }
+    
+    public void setDied() {
+    	hasDied = true;
     }
 
     private void showGameScreen() {
@@ -233,7 +265,45 @@ public class MainMenu {
         
         animation.start();
     }
-
-
-
+    
+    private Text createHighScoreTimeText() {
+    	Text text = new Text();
+    	String scoreToTime = convertSecondToTimeFormat(highScore);
+    	text.setText("Time Survived: " + scoreToTime);
+    	text.setFont(loadCustomFont("/assets/fonts/TitanOne-Regular.ttf", 15));
+    	text.setFill(Color.WHITE);  
+    	
+    	return text;
+    }
+    
+    private Text createHighScoreVitalityText() {
+    	Text text = new Text();
+    	text.setText("Highest Vitality Attained: " + highVitality);
+    	text.setFont(loadCustomFont("/assets/fonts/TitanOne-Regular.ttf", 15));
+    	text.setFill(Color.WHITE); 
+    	
+    	return text;
+    }
+  
+    private Font loadCustomFont(String fontPath, double size) {
+		try {
+			Font customFont = Font.loadFont(getClass().getResourceAsStream(fontPath), size);
+			if (customFont == null) {
+				throw new Exception("Font file not found: " + fontPath);
+			}
+			return customFont;
+		} catch (Exception e) {
+			e.printStackTrace();
+			// Fallback to default
+			return Font.font("Arial", size);
+		}
+	}
+    
+    private static String convertSecondToTimeFormat(double score) {
+    	int minutes = (int) score / 60;
+        int seconds = (int) score % 60;
+        int milliseconds = (int) ((score - (int)score) * 1000);
+    	
+    	return String.format("%02d:%02d.%02d", minutes, seconds, milliseconds);
+    }
 }
