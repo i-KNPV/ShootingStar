@@ -1,3 +1,11 @@
+# 0.1.2 (2023-12-19 19:54)
+
+### Release Highlights
+- Added high score visualizations to main menu and game over screen
+- Added rainbow effect to new records
+- Fixed bugs
+- Removed Herobrine
+
 # 0.1.1 (2023-12-19 16:30)
 
 ### Release Highlights
