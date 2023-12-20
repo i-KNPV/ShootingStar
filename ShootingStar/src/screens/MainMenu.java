@@ -57,8 +57,6 @@ public class MainMenu {
     private Text highVitalityText;
     private StackPane mainMenuLayout;
     private boolean hasDied;
-    private boolean musicMuted;
-    private boolean sfxMuted;
     private Pane starContainer;
     private AnimationTimer animation;
 
@@ -71,22 +69,20 @@ public class MainMenu {
        
         this.sound = new Sound();
         playMusic();
-        if (settings.isSfxMuted()) muteMusic();
+        if (settings.isMusicMuted()) muteMusic();
         
         // Load the images
         view_bg = new ImageView(backgroundImage); 
         view_bg.setRotate(90);
         view_bg.setPreserveRatio(true);
         
-        view_musicToggle = new ImageView(musicOn);
-        view_sfxToggle = new ImageView(sfxOn);
-        
-        musicMuted = false;
-        sfxMuted = false;
+        view_musicToggle = new ImageView(settings.isMusicMuted() ? musicOff : musicOn);
+        view_sfxToggle = new ImageView(settings.isSfxMuted() ? sfxOff : sfxOn);
         
         musicToggleButton = new Button();
         sfxToggleButton = new Button();
         musicToggleButton.setGraphic(view_musicToggle);
+    
         sfxToggleButton.setGraphic(view_sfxToggle);
         
         view_musicToggle.setFitWidth(50);  
@@ -315,10 +311,9 @@ public class MainMenu {
     
     private void playMusic() {
     	sound.setFile(6);
-    	if (!settings.isSfxMuted()) {
-    		sound.play();
-    		sound.loop(6);
-    	}
+    	sound.play();
+    	sound.loop(6);
+   
     }
     
     private void stopMusic() {
@@ -418,14 +413,6 @@ public class MainMenu {
         int milliseconds = (int) ((score - (int)score) * 1000);
     	
     	return String.format("%02d:%02d.%02d", minutes, seconds, milliseconds);
-    }
-    
-   public void musicMuted(Boolean state) {
-	   musicMuted = state;
-    }
-    
-    public void sfxMuted(Boolean state) {
-    	sfxMuted = state;
     }
     
     private void toggleMusic() {

@@ -365,11 +365,9 @@ public class GameScreen {
 	private void stopGame() {
         if (!abort) {
         	
-        	if (!settings.isSfxMuted()) {
-	        	stopMusic();
-	        	noise.stop();
-        	}
-        	
+        	if (!settings.isMusicMuted()) stopMusic();
+	        if (!settings.isSfxMuted()) noise.stop();
+        	        	
         	generalTimerText.setVisible(false);
         	view_hud.setVisible(false);
             vitalityText.setVisible(false);
@@ -400,7 +398,7 @@ public class GameScreen {
                 }
             }
             
-            if (!settings.isSfxMuted()) playSoundEffect(3);
+            if (!settings.isMusicMuted() && !settings.isSfxMuted()) playSoundEffect(3);
             
             whiteCover.setVisible(true);
             whiteCover.toFront();
