@@ -46,7 +46,7 @@ public class Enemy extends Sprite{
 	}
     
     public boolean isOutOfBounds() {
-    	return objectY < 0 - ENEMY_RADIUS;
+    	return objectY < 0 - (ENEMY_RADIUS + 30);
     }
     
     public void reset() {

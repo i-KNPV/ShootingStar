@@ -16,7 +16,7 @@ public class Shimmer extends Item{
 	protected double objectX;
     protected double objectY;
     private final static double ITEM_RADIUS = 20.0;
-    private final static int HEALTH = 40;
+    private final static int HEALTH = 50;
     private double SPEED;
     private double originalSpeed;
     private Settings settings;
