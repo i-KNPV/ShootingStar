@@ -135,9 +135,9 @@ public class GameScreen {
 		vitalityText.setLayoutY(view_hud.getLayoutY() + 60); 
 		
 		damageText = createDamageText();
-		double damageTextX = vitalityText.getLayoutX() + vitalityText.getLayoutBounds().getWidth() + 10; // 10 is a small gap
+		double damageTextX = vitalityText.getLayoutX() + vitalityText.getLayoutBounds().getWidth() + 90; 
 		damageText.setLayoutX(damageTextX);
-		damageText.setLayoutY(vitalityText.getLayoutY());
+		damageText.setLayoutY(vitalityText.getLayoutY() - 5);
 
 	    root.getChildren().addAll(countdownText, generalTimerText, vitalityText, damageText);
 		scene.setOnKeyPressed(event -> star.handleKeyPress(event.getCode()));
@@ -153,6 +153,11 @@ public class GameScreen {
             @Override
             public void handle(long now) {
             	long currentTime = System.nanoTime();
+            	
+            	view_hud.toFront();
+                vitalityText.toFront();
+                generalTimerText.toFront();
+                inventory.getImage().toFront();
             	
             	if (currentTime - lastSpawnTime >= spawnInterval 
             			&& enemySpawnCount < MAX_ENEMY_PHASE1
@@ -357,19 +362,19 @@ public class GameScreen {
     }
 	
 	private void positionInventoryImage() {
-        ImageView inventoryImage = inventory.getImage();
+	    ImageView inventoryImage = inventory.getImage();
 
-        double timerBoxX = view_hud.getLayoutX();
-        double timerBoxY = view_hud.getLayoutY();
-        double timerBoxWidth = view_hud.getFitWidth();
-        double timerBoxHeight = view_hud.getFitHeight();
+	    double hudX = view_hud.getLayoutX();
+	    double hudY = view_hud.getLayoutY();
 
-        // Position the inventory image beside the timer box
-        inventoryImage.setLayoutX(timerBoxX + timerBoxWidth + 10); // 10 is a small gap
-        inventoryImage.setLayoutY(timerBoxY + (timerBoxHeight - inventoryImage.getFitHeight()) / 2); // Align vertically with timer box
+	    // Position the inventory image to the left of the HUD and slightly up
+	    inventoryImage.setLayoutX(hudX - inventoryImage.getFitWidth() - 10); // 10 is a small gap
+	    inventoryImage.setLayoutY(hudY + 30); // Positioning up by 20
+	    inventoryImage.setFitWidth(50);
+	    inventoryImage.setPreserveRatio(true);
+	    root.getChildren().add(inventoryImage);
+	}
 
-        root.getChildren().add(inventoryImage); // Add inventory image to the root node
-    }
 	
 	private void showGameOverScreen() {
 		GameOver gameOverScreen = new GameOver(root.getScene().getWidth(), root.getScene().getHeight(), primaryStage, this);
@@ -515,8 +520,8 @@ public class GameScreen {
     
     private Text createDamageText() {
     	Text text = new Text();
-        text.setFont(loadCustomFont("/assets/fonts/TitanOne-Regular.ttf", 18));
-        text.setFill(Color.RED);
+        text.setFont(loadCustomFont("/assets/fonts/TitanOne-Regular.ttf", 40));
+        text.setFill(Color.DARKSALMON);
         text.setVisible(true); // Initially set to visible or invisible, as per your requirement
         return text;
     }
