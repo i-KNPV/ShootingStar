@@ -111,7 +111,7 @@ public class GameScreen {
         root.getChildren().add(view_hud);
         
         this.lastBoostSpawnTime = System.nanoTime();
-        // this.lastShieldSpawnTime = System.nanoTime();
+        //this.lastShieldSpawnTime = System.nanoTime();
 		
 		star = new Star(scene.getWidth(), scene.getHeight(), this);	
 		this.inventory = star.viewInventory();

@@ -59,10 +59,10 @@ public class Laser extends Enemy{
         // Blinking warning
         FadeTransition fadeIn = new FadeTransition(Duration.millis(500), warningRectangle);
         fadeIn.setFromValue(0);
-        fadeIn.setToValue(0.7);
+        fadeIn.setToValue(0.4);
 
         FadeTransition fadeOut = new FadeTransition(Duration.millis(500), warningRectangle);
-        fadeOut.setFromValue(0.7);
+        fadeOut.setFromValue(0.4);
         fadeOut.setToValue(0);
 
         SequentialTransition blinking = new SequentialTransition(fadeIn, fadeOut);
