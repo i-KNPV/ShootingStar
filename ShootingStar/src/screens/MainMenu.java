@@ -52,7 +52,7 @@ public class MainMenu {
         this.highScore = highScore;
         this.highVitality = highVitality;
         this.hasDied = hasDied;
-        
+
         if(visited == false) {
         	this.sound = new Sound();
             playMusic();

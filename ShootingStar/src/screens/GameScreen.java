@@ -33,6 +33,7 @@ public class GameScreen {
 	private static final Image boostImage = new Image("assets/sprites/boost.png");
 	private static final Image shieldImage = new Image("assets/sprites/shield.png");
 	private static final Image HUD = new Image("assets/sprites/hud.png");
+	private static final Image background = new Image("assets/background/main.gif");
 	
 	private ImageView view_hud;
 	private ImageView shieldImageView;
@@ -95,8 +96,7 @@ public class GameScreen {
 		
 		root = new Group();
 		Scene scene = new Scene(root, 600, 800, Color.WHITE);
-		
-		Image background = new Image("assets/background/main.gif");
+
 		ImageView view_bg = new ImageView(background);
 		view_bg.setFitHeight(800);
         view_bg.setPreserveRatio(true);
@@ -285,7 +285,7 @@ public class GameScreen {
 	}
 	
 	private void spawnEnemy() {
-		if (generalTimer > 10.0) {
+		if (generalTimer > 9) {
 			if (!hasLaser && laserInterval < 0) {
 				triggerLaser();
 				
