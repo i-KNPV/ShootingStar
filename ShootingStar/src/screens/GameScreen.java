@@ -4,6 +4,9 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.animation.AnimationTimer;
 import javafx.animation.FadeTransition;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.scene.Group;
 import javafx.scene.Scene;
@@ -56,6 +59,7 @@ public class GameScreen {
     private AnimationTimer countdownTimer;
     private AnimationTimer gameLoopTimer;
     private int countdownValue = 5;
+    private Timeline vitalityAnimation;
     private double laserInterval = 1.0;
     private double outOfBoundsTimer = 5.0;
     private double generalTimer = 0.0;
@@ -270,6 +274,12 @@ public class GameScreen {
                             e.printStackTrace();
                         }
                     }).start();
+                }
+                
+                if (star.getVitality() < 40) {
+                    startLowHealthAnimation();
+                } else if (star.getVitality() >= 40 || star.getVitality() == 0) {
+                    stopLowHealthAnimation();
                 }
     
                 star.updateMovement();
@@ -582,6 +592,25 @@ public class GameScreen {
         text.setFill(Color.DARKSALMON);
         text.setVisible(true); // Initially set to visible or invisible, as per your requirement
         return text;
+    }
+    
+    private void startLowHealthAnimation() {
+        if (vitalityAnimation == null) {
+            vitalityAnimation = new Timeline(
+                new KeyFrame(Duration.ZERO, new KeyValue(vitalityText.fillProperty(), Color.BLACK)),
+                new KeyFrame(Duration.millis(400), new KeyValue(vitalityText.fillProperty(), Color.RED))
+            );
+            vitalityAnimation.setAutoReverse(true);
+            vitalityAnimation.setCycleCount(Timeline.INDEFINITE);
+        }
+        vitalityAnimation.play();
+    }
+    
+    private void stopLowHealthAnimation() {
+        if (vitalityAnimation != null) {
+            vitalityAnimation.stop();
+            vitalityText.setFill(Color.BLACK); // Reset to default color
+        }
     }
     
     public void playMusic(int i) {
