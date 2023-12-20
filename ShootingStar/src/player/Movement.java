@@ -1,11 +1,13 @@
 package player;
 
 public class Movement {
-	private double velocityX;
-	private double velocityY;
-	private static final double SPEED = 6.0;
-	public static final double WIND_FORCE = -2;
-	private double speedMultiplier = 1.0;
+	private double velocityX; // Horizontal velocity of the object
+    private double velocityY; // Vertical velocity of the object
+    private static final double SPEED = 6.0; // Base speed for movement
+    public static final double WIND_FORCE = -2; // Constant wind force affecting vertical movement
+    private double speedMultiplier = 1.0; // Multiplier to adjust speed dynamically
+	
+	// Methods to move the object depending on key press
 	
     public void moveLeft() {
         velocityX = -SPEED * speedMultiplier;
@@ -23,6 +25,8 @@ public class Movement {
         velocityY = SPEED * speedMultiplier;
     }
     
+    // Methods to halt the object's vertical and horizontal movement
+    
     public void stopVertical() {
         velocityY = 0;
     }
@@ -31,6 +35,9 @@ public class Movement {
         velocityX = 0;
         
     }
+    
+    // Methods to get the current horizontal and vertical velocity
+    
     public double getVelocityX() {
         return velocityX;
     }
@@ -39,10 +46,12 @@ public class Movement {
         return velocityY;
     }
     
+    // Set the speed multiplier
     public void setSpeedMultiplier(double multiplier) {
         this.speedMultiplier = multiplier;
     }
-
+    
+    // Get the speed multiplier
     public double getSpeedMultiplier() {
         return this.speedMultiplier;
     }

@@ -1,23 +1,14 @@
 // Credits.java
 package screens;
 
-import application.Sound;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.layout.StackPane;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class Credits {
     private Stage primaryStage;
@@ -56,29 +47,7 @@ public class Credits {
         ImageView kyle = createImageView(kylegif);
         starsBox.getChildren().addAll(russ, kyle);
 
-        
-
-//        // Add a back button with an image
-//        Button backButton = new Button();
-//        backButton.setOnAction(event -> showMainMenu());
-
-        // Create an ImageView for the button
-        // Image backImage = new Image("assets/buttons/return.png", 150, 150, true, true);
-//        Image backImage = new Image("assets/buttons/return.png");
-//        ImageView backImageView = new ImageView(backImage);
-//        
-//        backImageView.setFitWidth(200);
-//        backImageView.setPreserveRatio(true);
-
-//        // Set the graphic of the button to the ImageView
-//        backButton.setGraphic(backImageView);
-
-//        // Set the alignment of the back button
-//        StackPane.setAlignment(backButton, Pos.BOTTOM_LEFT);
-//
-//        // Set margins for the back button to adjust its position
-//        StackPane.setMargin(backButton, new Insets(0, 10, 10, 10)); // Adjust values as needed
-        
+       
         creditsLayout.getChildren().addAll(view_bg, imageView);
 
         // Create the credits scene
@@ -100,24 +69,11 @@ public class Credits {
             	System.out.println("uwu");
             	creditsBox.setVisible(false);
                 starsBox.setVisible(true);
-//            	for (Node child : creditsLayout.getChildren()) {
-//                    if (child != view_bg) {
-//                        child.setVisible(false);
-//                    }
-//                }
-//            	for (Node child : starsLayout.getChildren()) {
-//                    if (child != view_bg) {
-//                        child.setVisible(true);
-//                    }
-//                }
             	break;
+		default:
+			break;
         }
     }
-    
-    public void showStars() {
-    	
-    }
-    
     
     public Scene getScene() {
         return creditsScene;
@@ -130,7 +86,8 @@ public class Credits {
         primaryStage.setScene(menu.getScene());
     }
 
-    private javafx.scene.control.Label createCreditLabel(String text) {
+    @SuppressWarnings("unused")
+	private javafx.scene.control.Label createCreditLabel(String text) {
         javafx.scene.control.Label label = new javafx.scene.control.Label(text);
         label.setStyle("-fx-font-size: 16; -fx-text-fill: white;");
         return label;

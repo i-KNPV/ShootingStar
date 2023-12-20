@@ -2,20 +2,15 @@ package screens;
 
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
-import javafx.scene.layout.StackPane;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import application.Settings;
-import enemies.Enemy;
-import items.Item;
 import javafx.animation.Animation;
 import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
@@ -47,7 +42,8 @@ public class GameOver{
     private int localHighVitality;
 
     public GameOver(double width, double height, Stage primaryStage, GameScreen screen, Settings settings) {
-        this.screen = screen;
+    	// Initialize the game over screen with UI elements
+    	this.screen = screen;
         this.settings = settings;
     	
     	Group root = new Group();
@@ -86,6 +82,7 @@ public class GameOver{
         scene = new Scene(root, width, height, Color.BLACK);
         this.primaryStage = primaryStage;
         
+        // Show the results based on the current session scores and previous high scores
         score = screen.getGeneralTimer();
         highScore = screen.getHighScore();
         highScore = compareScores(score, highScore);
@@ -120,7 +117,7 @@ public class GameOver{
             root.getChildren().add(newHighVitalityText);
         }
         
-     // Create a rectangle to cover the entire scene for the fade-in effect
+        // Create a rectangle to cover the entire scene for the fade-in effect
         Rectangle fadeRectangle = new Rectangle(width, height);
         fadeRectangle.setFill(Color.WHITE);
         fadeRectangle.setOpacity(1); // Start fully opaque
@@ -136,19 +133,14 @@ public class GameOver{
 
         // Start the fade-in transition
         fadeIn.play();
-        
-       
-        System.out.println(Item.getItems());
-        System.out.println(Enemy.getEnemies());
-        
-        
-        System.out.println(newHighScore);
-        System.out.println(newHighVitality);
     }
 
+    // Getter for the scene
     public Scene getScene() {
         return scene;
     }
+    
+    // Methods for comparing scores and vitality
     
     private double compareScores(double score, double high) {
     	if (high < score) {
@@ -166,8 +158,9 @@ public class GameOver{
     	else return high;
     }
     
+    // Reset the previous game session to make way for a new one
     private void resetGame() {
-    	System.out.println( "Restarting!" );
+    	System.out.println( "Restarting..." );
     	
     	screen.resetGame();
     	primaryStage.close();
@@ -179,16 +172,18 @@ public class GameOver{
         System.out.println(gameScreen.getGeneralTimer());
     }
     
+    // Reset the previous session to go back to main menu
     private void showMainMenu() {
-    	System.out.println( "Clearing..." );
+    	System.out.println( "Going back to Main Menu..." );
     	screen.resetGame();
     	
     	primaryStage.close();
     	MainMenu mainMenu = new MainMenu(primaryStage, highScore, globalHighVitality, true, settings);
-    	mainMenu.setDied();
     	primaryStage.setScene(mainMenu.getScene());
     	primaryStage.show();
     }
+    
+    // Methods to create text elements for displaying scores
     
     private Text createHighScoreTimeText() {
     	Text text = new Text();
@@ -235,18 +230,21 @@ public class GameOver{
     	return String.format("%02d:%02d.%02d", minutes, seconds, milliseconds);
     }
     
+    // Create text for new beaten records
     private Text createNewRecordText() {
         Text text = new Text("NEW");
         text.setFont(loadCustomFont("/assets/fonts/TitanOne-Regular.ttf", 18));
         text.setFill(Color.WHITE);
         return text;
     }
-
+    
+    // Position the new record text
     private void positionNewRecordText(Text recordText, Text scoreText) {
         recordText.setLayoutX(scoreText.getLayoutX() - recordText.getLayoutBounds().getWidth() - 10);
         recordText.setLayoutY(scoreText.getLayoutY());
     }
-
+    
+    // Animate the new record text with rainbow effect
     private void animateNewRecordText(Text recordText) {
         // Rainbow color animation
         Timeline colorAnimation = new Timeline(

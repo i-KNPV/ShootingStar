@@ -12,16 +12,18 @@ public class Inventory {
     private ImageView boostImage;
     private ImageView shieldImage;
     private int holdingItem; 
-    private double boostSpeedMultiplier = 2.0;
+    private double boostSpeedMultiplier = 2.0; // Speed multiplier for boost item
     
+    // Constants to represent different inventory states
     public final int EMPTY = 0;
     public final int BOOST = 1;
     public final int SHIELD = 2;
     
     public Inventory() {
-        holdingItem = EMPTY;
+        holdingItem = EMPTY; // Initialize inventory as empty
         
-        image = new ImageView(SPRITE);
+        // Setup inventory and item images
+        image = new ImageView(SPRITE); 
         image.setFitWidth(50);
         image.setPreserveRatio(true);
         image.setVisible(true);
@@ -36,26 +38,35 @@ public class Inventory {
         shieldImage.setPreserveRatio(true);
         shieldImage.setVisible(false);
     }
-
+    
+    // Add a boost item to the inventory
     public void addBoost() {
+    	System.out.println("Player grabbed BOOST!");
         holdingItem = BOOST;
         updateItemDisplay();
     }
-
+    
+    // Add a shield item to the inventory
     public void addShield() {
+    	System.out.println("Player grabbed SHIELD!");
         holdingItem = SHIELD;
         updateItemDisplay();
     }
-
+    
+    // Apply the effect of a boost item
     public void applyBoost(Movement movement) {
+    	System.out.println("Player applied speed boost.");
         movement.setSpeedMultiplier(boostSpeedMultiplier);
     }
-
+    
+    // Clear the inventory
     public void clearInventory() {
+    	System.out.println("Inventory cleared");
         holdingItem = EMPTY;
         updateItemDisplay();
     }
-
+    
+    // Update the item display based on the inventory state
     private void updateItemDisplay() {
         // Hide both images initially
         boostImage.setVisible(false);
@@ -65,19 +76,22 @@ public class Inventory {
         if (holdingItem == BOOST) {
             boostImage.setVisible(true);
         } else if (holdingItem == SHIELD) {
-        	System.out.println("Showing SHIELD image");
             shieldImage.setVisible(true);
         }
     }
-
+    
+    // Reset the effect of a boost item
     public void resetBoost(Movement movement) {
         movement.setSpeedMultiplier(1.0); // Reset to normal speed
     }
-
+    
+    // Get the current item in the inventory
     public int getInventory() {
         return holdingItem;
     }
-
+    
+    // Getters for image views
+    
     public ImageView getImage() {
         return image;
     }

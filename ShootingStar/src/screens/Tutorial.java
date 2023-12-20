@@ -3,13 +3,11 @@ package screens;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.HBox;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.scene.input.KeyCode;
 
@@ -21,7 +19,6 @@ import java.util.List;
 public class Tutorial {
     private Stage primaryStage;
     private Scene tutorialScene;
-    private double highScore;
     private MainMenu menu;
 
     private List<TutorialPage> tutorialPages;
@@ -111,10 +108,6 @@ public class Tutorial {
         }
     }
 
- // ...
-
- // ...
-
     private VBox createPageContent(TutorialPage page) {
         // Create ImageViews for tutorial images
         List<ImageWithPath> imagesWithPath = page.getImagesWithPath();
@@ -128,23 +121,6 @@ public class Tutorial {
             imageViews.add(imageView);
         }
 
-//        // Create an HBox for the buttons
-//        HBox buttonsHBox = new HBox(10);
-//        buttonsHBox.setAlignment(Pos.CENTER);
-//
-//        // Include buttons in the HBox
-//        Button backButton = new Button("Back to Main Menu");
-//        backButton.setOnAction(event -> showMainMenu());
-//
-//        Button nextButton = new Button("Next");
-//        nextButton.setOnAction(event -> showNextTutorial());
-//
-//        Button prevButton = new Button("Previous");
-//        prevButton.setOnAction(event -> showPreviousTutorial());
-//
-//        // Add buttons to the HBox
-//        buttonsHBox.getChildren().addAll(backButton, prevButton, nextButton);
-
         // Create an HBox to arrange the images horizontally
         HBox imagesHBox = new HBox(10);
         imagesHBox.setAlignment(Pos.CENTER);
@@ -156,7 +132,6 @@ public class Tutorial {
         contentBox.setPadding(new Insets(10));
 
         // Add the HBox containing buttons to the VBox
-//        contentBox.getChildren().addAll(buttonsHBox, imagesHBox);
         contentBox.getChildren().add(imagesHBox);
 
         return contentBox;
@@ -170,6 +145,8 @@ public class Tutorial {
             case RIGHT:
                 showNextTutorial();
                 break;
+		default:
+			break;
         }
     }
 

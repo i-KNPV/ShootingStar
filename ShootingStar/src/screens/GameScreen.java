@@ -14,7 +14,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.shape.Rectangle;
@@ -31,7 +30,7 @@ import enemies.Bird;
 import items.*;
 
 public class GameScreen {
-	// Preload the images
+	// Preload images for game elements
 	private static final Image rocketImage = new Image("assets/sprites/rocket.png");
 	private static final Image shimmerImage = new Image("assets/sprites/shimmer.gif");
 	private static final Image boostImage = new Image("assets/sprites/boost.png");
@@ -49,16 +48,12 @@ public class GameScreen {
     private Sound sound;
     private Sound bgmusic;
     private Sound noise;
-    private Rectangle whiteCover;
     private Text timerText;
-    private Text gameOverText;
     private Text generalTimerText;
     private Text countdownText;
     private Text damageText;
-    private Rectangle timerBox;
-    private AnimationTimer countdownTimer;
+    private Rectangle whiteCover;
     private AnimationTimer gameLoopTimer;
-    private int countdownValue = 5;
     private Timeline vitalityAnimation;
     private double laserInterval = 1.0;
     private double outOfBoundsTimer = 5.0;
@@ -68,12 +63,12 @@ public class GameScreen {
     private int localHighVitality = 100;
     private boolean hasLaser = false;
     private boolean abort = false;
-    private boolean countdownRunning = false;
-    
+
     private Text vitalityText;
     private int enemySpawnCount = 0;
     private final int MAX_ENEMY_PHASE1 = 100;
     private final long NANOSECONDS_PER_SECOND = 500_000_000;
+    
     private long lastSpawnTime = 0;
     private final long spawnInterval = NANOSECONDS_PER_SECOND; 
     
@@ -87,7 +82,8 @@ public class GameScreen {
     private final long SHIMMER_SPAWN_INTERVAL = 20_000_000_000L;
     
     public GameScreen(Stage primaryStage, double highScore, int highVitality, Settings settings) {
-		this.primaryStage = primaryStage;
+		// Initialize the game screen with all UI elements
+    	this.primaryStage = primaryStage;
 		this.highScore = highScore;
 		this.globalHighVitality = highVitality;
 		this.settings = settings;
@@ -95,6 +91,8 @@ public class GameScreen {
 		bgmusic = new Sound();
 		sound = new Sound();
 		noise = new Sound();
+		
+		// Play the wind noise and background music
 		
 		if(!settings.isMusicMuted())playMusic(1);
 		
@@ -106,7 +104,8 @@ public class GameScreen {
 		
 		root = new Group();
 		Scene scene = new Scene(root, 600, 800, Color.WHITE);
-
+		
+		// Set up the HUD
 		ImageView view_bg = new ImageView(background);
 		view_bg.setFitHeight(800);
         view_bg.setPreserveRatio(true);
@@ -120,24 +119,27 @@ public class GameScreen {
         
         root.getChildren().add(view_hud);
         
+        // Forces the boost to spawn at a later time
         this.lastBoostSpawnTime = System.nanoTime();
+        
+        // Commented out to force a shield to spawn at the start of each game 
         //this.lastShieldSpawnTime = System.nanoTime();
 		
+        // Set up the player and inventory
 		star = new Star(scene.getWidth(), scene.getHeight(), this, settings);	
 		this.inventory = star.viewInventory();
 		root.getChildren().add(star.getObject());
 		root.getChildren().add(star.getStarImage());
-	
-		gameOverText = createGameOverText();
-		root.getChildren().add(gameOverText);
-		gameOverText.setVisible(false);
 		
+		// Initialize text for the out of bounds count down text
 		timerText = createTimerText();	
 		countdownText = createCountdownText();
 		countdownText.setLayoutX(((scene.getWidth() - countdownText.getLayoutBounds().getWidth()) / 2) - 20);
 		countdownText.setLayoutY((scene.getHeight() / 2) - countdownText.getLayoutBounds().getHeight());
 		positionInventoryImage();
         
+		// Initialize text for the HUD
+		
         generalTimerText = createGeneralTimerText();
 		generalTimerText.setVisible(true);
 		
@@ -150,22 +152,25 @@ public class GameScreen {
 		double damageTextX = vitalityText.getLayoutX() + vitalityText.getLayoutBounds().getWidth() + 90; 
 		damageText.setLayoutX(damageTextX);
 		damageText.setLayoutY(vitalityText.getLayoutY() - 5);
-
+		
 	    root.getChildren().addAll(countdownText, generalTimerText, vitalityText, damageText);
 		scene.setOnKeyPressed(event -> star.handleKeyPress(event.getCode()));
 		scene.setOnKeyReleased(event -> star.handleKeyRelease(event.getCode()));
 		
+		// Set up flash animation
 		whiteCover = new Rectangle(0, 0, scene.getWidth(), scene.getHeight());
         whiteCover.setFill(Color.WHITE);
         whiteCover.setOpacity(0);
         whiteCover.setVisible(false);
         root.getChildren().add(whiteCover);
 		
+        // Game logic
 		gameLoopTimer = new AnimationTimer() {
             @Override
             public void handle(long now) {
             	long currentTime = System.nanoTime();
             	
+            	// Always put the HUD in front
             	view_hud.toFront();
                 vitalityText.toFront();
                 generalTimerText.toFront();
@@ -173,6 +178,7 @@ public class GameScreen {
                 inventory.getBoostImage().toFront();
                 inventory.getShieldImage().toFront();
             	
+                // Conditions for spawning enemies and items
             	if (currentTime - lastSpawnTime >= spawnInterval 
             			&& enemySpawnCount < MAX_ENEMY_PHASE1
             			&& !abort) {
@@ -195,6 +201,7 @@ public class GameScreen {
                     lastShieldSpawnTime = currentTime;
                 }
             	
+            	// Update the enemies
             	ArrayList<Enemy> enemiesToRemove = new ArrayList<>();
             	for (Enemy enemy: Enemy.getEnemies()) {
             		enemy.updatePosition();
@@ -207,8 +214,11 @@ public class GameScreen {
             		}
             	}
             	
+            	// Update the items
             	ArrayList<Item> itemsToRemove = new ArrayList<>();
             	for (Item item : Item.getItems()) {
+            		
+            		// Conditions for different collisions with 
         	        if (item instanceof Shimmer && star.isCollidedWith((Shimmer) item)) {
         	        	
         	        	if (!settings.isSfxMuted()) playSoundEffect(4);
@@ -218,6 +228,7 @@ public class GameScreen {
         	        	root.getChildren().remove(item.getImage()); 
         	        	root.getChildren().remove(item.getObject()); 
         	            itemsToRemove.add(item);
+        	            System.out.println("Player obtained SHIMMER! Current health: " + star.getVitality());
         	        }
         	        
         	        if (item instanceof Boost && star.isCollidedWith((Boost) item)) {
@@ -245,9 +256,11 @@ public class GameScreen {
         	        }
         	    }
             	
+            	// Remove the enemies and items in remove holders
         	    Item.getItems().removeAll(itemsToRemove);
             	Enemy.getEnemies().removeAll(enemiesToRemove);
             	
+            	// Update the position of the items
             	for (Item item : Item.getItems()) {
                     if (item instanceof Shimmer) {
                         ((Shimmer) item).updatePosition();
@@ -262,9 +275,11 @@ public class GameScreen {
                     }
                 }
             	
+            	// Update the vitality and damage text
             	vitalityText.setText(Integer.toString(star.getVitality()));
                 damageText.setText(star.getDamageText());
                 
+                // Create a concurrent thread for the damage pop up
                 if (!star.getDamageText().isEmpty()) {
                     new Thread(() -> {
                         try {
@@ -276,6 +291,7 @@ public class GameScreen {
                     }).start();
                 }
                 
+                // If the player is at low health, make the shine blink
                 if (star.getVitality() < 40) {
                     startLowHealthAnimation();
                 } else if (star.getVitality() >= 40 || star.getVitality() == 0) {
@@ -292,15 +308,19 @@ public class GameScreen {
        gameLoopTimer.start();
 	}
 	
+    // Getter for the scene
 	public Scene getScene() {
 		return root.getScene();
 	}
 	
+	// Getter for the root node
 	public Group getRoot() {
 		return root;
 	}
 	
+	// Method to spawn enemies
 	private void spawnEnemy() {
+		// After 10 seconds, spawn rockets and allow lasers to spawn
 		if (generalTimer > 10) {
 			if (!hasLaser && laserInterval < 0) {
 				triggerLaser();
@@ -318,18 +338,21 @@ public class GameScreen {
 	    enemySpawnCount++;
     }
 	
+	// Methods for spawning game elements
+	
 	private void spawnRocket() {
 		 ImageView rocketImageView = new ImageView(rocketImage);
 	     Rocket rocket = new Rocket(getScene().getWidth(), getScene().getHeight(), this, rocketImageView); // Pass the preloaded image
 	     root.getChildren().add(rocketImageView);
 	     Enemy.addEnemy(rocket);
 	}
-	
+
 	private void spawnShimmer() {
 		ImageView shimmerImageView = new ImageView(shimmerImage);
 	    Shimmer shimmer = new Shimmer(getScene().getWidth(), getScene().getHeight(), this, shimmerImageView, settings);
 	    root.getChildren().add(shimmerImageView);
 	    Item.addItem(shimmer);
+	    System.out.println("Item spawned: SHIMMER");
 	}
 	
 	private void spawnBoost() {
@@ -337,6 +360,7 @@ public class GameScreen {
 	    Boost boost = new Boost(root.getScene().getWidth(), root.getScene().getHeight(), this, boostImageView);
 	    root.getChildren().add(boost.getImage());
 	    Item.addItem(boost);
+	    System.out.println("Item spawned: BOOST");
 	}
 	
 	private void spawnShield() {
@@ -346,49 +370,43 @@ public class GameScreen {
 	    Shield shield = new Shield(root.getScene().getWidth(), root.getScene().getHeight(), this, shieldImageView);
 	    root.getChildren().add(shield.getImage());
 	    Item.addItem(shield);
+	    System.out.println("Item spawned: SHIELD");
 	}
 	
+	// Get the image of the shield
 	public ImageView getShieldImage() {
 		return shieldImageView;
 	}
 	
+	// Method to stop game once player has reached a shine of 0
 	private void handleCollisions() { 
 		if (star.getVitality() < 1){
 			stopGame();
 		}
 	}
-	
-	private Font loadCustomFont(String fontPath, double size) {
-		try {
-			Font customFont = Font.loadFont(getClass().getResourceAsStream(fontPath), size);
-			if (customFont == null) {
-				throw new Exception("Font file not found: " + fontPath);
-			}
-			return customFont;
-		} catch (Exception e) {
-			e.printStackTrace();
-			// Fallback to default
-			return Font.font("Arial", size);
-		}
-	}
-	
+
+	// Method for stopping the game
 	private void stopGame() {
         if (!abort) {
         	
+        	// Mute the music and noise
         	if (!settings.isMusicMuted()) stopMusic();
 	        if (!settings.isSfxMuted()) noise.stop();
         	        	
+	        // Hide HUD
         	generalTimerText.setVisible(false);
         	view_hud.setVisible(false);
             vitalityText.setVisible(false);
             inventory.getImage().setVisible(false);
             inventory.getBoostImage().setVisible(false);
             inventory.getShieldImage().setVisible(false);
-
+            
+            // Bring player to a halt
             star.stopMovement();
             star.setGameActive(false);
             abort = true;
-
+            
+            // Inititate slow down animation
             for (Enemy enemy : Enemy.getEnemies()) {
                 enemy.initiateSlowdown(); // Initiate slowdown for each enemy
             }
@@ -408,8 +426,10 @@ public class GameScreen {
                 }
             }
             
+            // Play game over sound effect
             if (!settings.isMusicMuted() && !settings.isSfxMuted()) playSoundEffect(3);
             
+            // Fade to white
             whiteCover.setVisible(true);
             whiteCover.toFront();
             FadeTransition fadeTransition = new FadeTransition(Duration.seconds(3), whiteCover);
@@ -421,6 +441,7 @@ public class GameScreen {
         }
     }
 	
+	// Position the inventory page in HUD
 	public void positionInventoryImage() {
 	    ImageView inventoryImage = inventory.getImage();
 	    ImageView boostImage = inventory.getBoostImage();
@@ -455,24 +476,41 @@ public class GameScreen {
 	    shieldImage.toFront();
 	}
 
-
+	private Font loadCustomFont(String fontPath, double size) {
+		try {
+			Font customFont = Font.loadFont(getClass().getResourceAsStream(fontPath), size);
+			if (customFont == null) {
+				throw new Exception("Font file not found: " + fontPath);
+			}
+			return customFont;
+		} catch (Exception e) {
+			e.printStackTrace();
+			// Fallback to default
+			return Font.font("Arial", size);
+		}
+	}
 	
+	// Move over to the game over screen
 	private void showGameOverScreen() {
 		GameOver gameOverScreen = new GameOver(root.getScene().getWidth(), root.getScene().getHeight(), primaryStage, this, settings);
 		primaryStage.setScene(gameOverScreen.getScene());
 	}
 
-	public int getSpawnCount() {
-		return enemySpawnCount;
-	}
-	
+	// Set the spawn count
 	public void setSpawnCount(int value) {
 		enemySpawnCount = value;
 	}
 	
+	// Trigger or active a laser
 	public void triggerLaser() {
 		Laser laser = new Laser(root.getScene().getWidth(), root.getScene().getHeight(), this, settings); // root is your root container
         laser.activate(star); // player is your Star instance
+	}
+	
+	// Getters for different values
+	
+	public int getSpawnCount() {
+		return enemySpawnCount;
 	}
 	
 	public double getGeneralTimer() {
@@ -491,6 +529,7 @@ public class GameScreen {
 		hasLaser = hasLaserCheck;
 	}
 	
+	// Handle the general timer used in showing the time in HUD and spawning
 	private void handleTimer() {
 		if (!abort) {
 			generalTimer += 0.016;
@@ -517,6 +556,7 @@ public class GameScreen {
 	    generalTimerText.setText(convertSecondToTimeFormat(generalTimer));
 	}
 	
+	// Show an out of bounds warning 
     private void handleOutOfBoundsMessages() {
         if (star.isOutOfBounds()) {
             if (!root.getChildren().contains(timerText)) {
@@ -527,6 +567,7 @@ public class GameScreen {
             timerText.setText(String.format("RETURN TO PLAY AREA IN %n%.0f", outOfBoundsTimer));
             timerText.setVisible(true);
             
+            // Kill the player if player stays out of bounds for too long
             if (outOfBoundsTimer <= 0) {
             	star.setVitality(0);
                 timerText.setVisible(false);
@@ -537,6 +578,8 @@ public class GameScreen {
         }
     }
 
+    // Methods for setting up the different text on screen
+    
     private Text createTimerText() {
         Text text = new Text("Return in 5 seconds");
         text.setFont(loadCustomFont("/assets/fonts/TitanOne-Regular.ttf", 40));
@@ -547,16 +590,6 @@ public class GameScreen {
         text.setVisible(false);
         return text;
     }
-    
-	private Text createGameOverText() {
-		Text text = new Text();
-		text.setFont(loadCustomFont("/assets/fonts/TitanOne-Regular.ttf", 24));
-        text.setFill(Color.RED);
-        text.setTextAlignment(TextAlignment.CENTER);
-        text.setLayoutX(root.getScene().getWidth() / 2 - 200);
-        text.setLayoutY(-200);
-        return text;
-	}
     
     private Text createGeneralTimerText() {
         Text text = new Text();
@@ -594,8 +627,11 @@ public class GameScreen {
         return text;
     }
     
+    // Methods for dealing with low health animation for shine text
+    
     private void startLowHealthAnimation() {
         if (vitalityAnimation == null) {
+        	// Rapidly blinks for black to red and back to red again
             vitalityAnimation = new Timeline(
                 new KeyFrame(Duration.ZERO, new KeyValue(vitalityText.fillProperty(), Color.BLACK)),
                 new KeyFrame(Duration.millis(400), new KeyValue(vitalityText.fillProperty(), Color.RED))
@@ -613,6 +649,8 @@ public class GameScreen {
         }
     }
     
+    // Methods for dealing with music and sound effects
+    
     public void playMusic(int i) {
     	bgmusic.setFile(i);
     	bgmusic.setVolume(0.85f);
@@ -628,7 +666,41 @@ public class GameScreen {
     	sound.setFile(i);
     	sound.play();
     }
-   
+     
+    // Getter for the current screen instance
+    public GameScreen getScreen() {
+    	return this;
+    }
+    
+    // Methods for dealing with vitality high scores
+    
+    public int getLocalHighVitality() {
+		return localHighVitality;
+	}
+    
+	public void setLocalHighVitality(int vitality) {
+		localHighVitality = vitality;
+	}
+	
+	public int getGlobalHighVitality() {
+		return globalHighVitality;
+	}
+	
+	// Utility function to convert double to seconds format
+	private static String convertSecondToTimeFormat(double time) {
+	    int minutes = (int) time / 60;
+	    int seconds = (int) time % 60;
+	    int milliseconds = (int) ((time - (int)time) * 1000);
+	    
+	    return String.format("%02d:%02d.%03d", minutes, seconds, milliseconds);
+	}
+	
+	// Getter for the Star object
+	public Star getStar() {
+		return star;
+	}
+	
+    // Reset all game states to get ready for garbage collection
     public void resetGame() {
     	star.reset();
     	
@@ -650,32 +722,4 @@ public class GameScreen {
     	Item.clearItems();
 
     }
-    
-    public GameScreen getScreen() {
-    	return this;
-    }
-    
-    public int getLocalHighVitality() {
-		return localHighVitality;
-	}
-    
-	public void setLocalHighVitality(int vitality) {
-		localHighVitality = vitality;
-	}
-	
-	public int getGlobalHighVitality() {
-		return globalHighVitality;
-	}
-	
-	private static String convertSecondToTimeFormat(double time) {
-	    int minutes = (int) time / 60;
-	    int seconds = (int) time % 60;
-	    int milliseconds = (int) ((time - (int)time) * 1000);
-	    
-	    return String.format("%02d:%02d.%03d", minutes, seconds, milliseconds);
-	}
-	
-	public Star getStar() {
-		return star;
-	}
 }

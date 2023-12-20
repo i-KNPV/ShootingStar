@@ -10,7 +10,6 @@ import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.animation.KeyFrame;
-import javafx.animation.PathTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -21,7 +20,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
@@ -31,6 +29,7 @@ import javafx.scene.Node;
 
 
 public class MainMenu {
+	// Image resources for the main menu
 	private static final Image logo = new Image("assets/buttons/logo.png", 450, 450, false, true);
 	private static final Image play = new Image("assets/buttons/play.png");
 	private static final Image tutorial = new Image("assets/buttons/help.png");
@@ -44,35 +43,34 @@ public class MainMenu {
 	private static final Image loadingImage = new Image("assets/background/loading.png");
 	
 	private Settings settings;
+	private AnimationTimer animation;
 	private ImageView view_bg;
 	private ImageView view_musicToggle;
 	private ImageView view_sfxToggle;
 	private Button musicToggleButton;
 	private Button sfxToggleButton;
- 	private Sound sound;
     private Stage primaryStage;
     private Scene scene;
-    private double highScore;
-    private int highVitality;
+ 	private Sound sound;
     private Text highScoreText;
     private Text highVitalityText;
     private StackPane mainMenuLayout;
-    private boolean hasDied;
     private Pane starContainer;
-    private AnimationTimer animation;
+    private double highScore;
+    private int highVitality;
 
     public MainMenu(Stage primaryStage, double highScore, int highVitality, boolean hasDied, Settings settings) {
     	this.primaryStage = primaryStage;
         this.highScore = highScore;
         this.highVitality = highVitality;
-        this.hasDied = hasDied;
         this.settings = settings;
        
+        // Play the main menu music
         this.sound = new Sound();
         playMusic();
         if (settings.isMusicMuted()) muteMusic();
         
-        // Load the images
+        // Load and setup the images
         view_bg = new ImageView(backgroundImage); 
         view_bg.setRotate(90);
         view_bg.setPreserveRatio(true);
@@ -80,12 +78,11 @@ public class MainMenu {
         view_musicToggle = new ImageView(settings.isMusicMuted() ? musicOff : musicOn);
         view_sfxToggle = new ImageView(settings.isSfxMuted() ? sfxOff : sfxOn);
         
+        // Put the volume images to buttons
         musicToggleButton = new Button();
         sfxToggleButton = new Button();
         musicToggleButton.setGraphic(view_musicToggle);
-    
         sfxToggleButton.setGraphic(view_sfxToggle);
-        
         view_musicToggle.setFitWidth(50);  
         view_musicToggle.setFitHeight(50);
         view_sfxToggle.setFitWidth(50);    
@@ -94,15 +91,17 @@ public class MainMenu {
         view_sfxToggle.setOpacity(70);
         view_musicToggle.setPreserveRatio(true);
         view_sfxToggle.setPreserveRatio(true);
-
         
+        // Make the buttons invincible
         musicToggleButton.setStyle("-fx-background-color: transparent; -fx-border-width: 0;");
         sfxToggleButton.setStyle("-fx-background-color: transparent; -fx-border-width: 0;");
         
+        // Event handlers for when the mute buttons are clicked
         musicToggleButton.setOnAction(event -> toggleMusic());
         sfxToggleButton.setOnAction(event -> toggleSFX());
         
-        VBox soundControlLayout = new VBox(-10); // Adjust spacing as needed
+        // Put the mute buttons to a VBox
+        VBox soundControlLayout = new VBox(-10); 
         soundControlLayout.setPadding(new Insets(20, 20, 20, 20));
         soundControlLayout.getChildren().addAll(musicToggleButton, sfxToggleButton);
         soundControlLayout.setAlignment(Pos.BOTTOM_LEFT);
@@ -110,12 +109,13 @@ public class MainMenu {
         soundControlLayout.setMaxSize(VBox.USE_PREF_SIZE, VBox.USE_PREF_SIZE);
         soundControlLayout.setPickOnBounds(false);
         
-        
+        // Initialize the containers
         starContainer = new Pane();
         mainMenuLayout = new StackPane();
         mainMenuLayout.getChildren().add(view_bg);
         mainMenuLayout.getChildren().add(starContainer);
         
+        // Load the main buttons
         this.scene = new Scene(mainMenuLayout, 600, 800);
         ImageView view_logo = new ImageView(logo);
         ImageView view_play = new ImageView(play);
@@ -140,11 +140,13 @@ public class MainMenu {
         Button creditsButton = new Button();
         Button quitButton = new Button();
         
+        // Make the main buttons invincible
         playButton.setStyle("-fx-background-color: transparent; -fx-border-width: 0;");
         tutorialButton.setStyle("-fx-background-color: transparent; -fx-border-width: 0;");
         creditsButton.setStyle("-fx-background-color: transparent; -fx-border-width: 0;");
         quitButton.setStyle("-fx-background-color: transparent; -fx-border-width: 0;");
         
+        // Put the images on the buttons
         playButton.setGraphic(view_play);
         tutorialButton.setGraphic(view_tutorial);
         creditsButton.setGraphic(view_credits);
@@ -167,8 +169,7 @@ public class MainMenu {
             hideChildren();
             showCredits();
         });
-        
-        
+  
         quitButton.setOnAction(event -> quitApplication());
         
         // Layout for the main menu
@@ -182,13 +183,12 @@ public class MainMenu {
         mainMenuLayout.getChildren().addAll(logoLayout, buttonsLayout, soundControlLayout);
         StackPane.setAlignment(soundControlLayout, Pos.BOTTOM_LEFT);
         
+        // UI for the high score
         highScoreText = createHighScoreTimeText();
         double highScoreTextY = (scene.getHeight() / 2) + 60 - (scene.getHeight() / 2);
         
         highVitalityText = createHighScoreVitalityText();
         double highVitalityTextY = (scene.getHeight() / 2) + 80 - (scene.getHeight() / 2);
-
-
         highScoreText.setTranslateY(highScoreTextY);
         highVitalityText.setTranslateY(highVitalityTextY);
         
@@ -208,12 +208,11 @@ public class MainMenu {
             mainMenuLayout.getChildren().remove(whiteFlash); // Remove the rectangle after fade out
         });
 
-        // Fade in transition for logo
+        // Fade in transitions
         FadeTransition fadeInLogo = new FadeTransition(Duration.seconds(2), view_logo);
         fadeInLogo.setFromValue(0.0);
         fadeInLogo.setToValue(1.0);
       
-        // Fade in transition for buttons
         FadeTransition fadeInButtons = new FadeTransition(Duration.seconds(1), buttonsLayout);
         fadeInButtons.setFromValue(0.0);
         fadeInButtons.setToValue(1.0);
@@ -245,25 +244,25 @@ public class MainMenu {
         initializeStarAnimation();
     }
     
+    // Get the scene
     public Scene getScene() {
         return scene;
     }
     
-    public void setDied() {
-    	hasDied = true;
-    }
-
+    // Set up the play screen
     private void showGameScreen() {
         System.out.println("Switching to the Game Screen");
         ImageView loading = new ImageView(loadingImage);
         mainMenuLayout.getChildren().add(loading);
         
+        // Create a concurrent thread to load the play screen
         Task<Void> gameScreenTask = new Task<Void>() {
             @Override
             protected Void call() throws Exception {
                 GameScreen gameScreen = new GameScreen(primaryStage, highScore, highVitality, settings);
+                
+                // Call this once the play screen has finished loading
                 Platform.runLater(() -> {
-                	
                     stopMusic();
                     animation.stop();
                     primaryStage.setScene(gameScreen.getScene());
@@ -275,6 +274,7 @@ public class MainMenu {
         new Thread(gameScreenTask).start();
     }
    
+    // Hide the main menu
     private void hideChildren() {
         for (Node child : mainMenuLayout.getChildren()) {
             if (child != view_bg) {
@@ -283,7 +283,7 @@ public class MainMenu {
         }
     }
 
-    
+    // Show the main menu
     public void showChildren() {
         for (Node child : mainMenuLayout.getChildren()) {
             if (child != view_bg) {
@@ -292,14 +292,15 @@ public class MainMenu {
         }
     }
 
-    
+    // Show tutorial page
     private void showTutorial() {
     	System.out.println("Switching to the Tutorial Screen");
     	Tutorial tutorial = new Tutorial(primaryStage, this);
     	primaryStage.setTitle("Shooting Star [Game Screen] [alpha]");
         primaryStage.setScene(tutorial.getScene());
     }
-
+    
+    // Show developers page
     private void showCredits() {
         System.out.println("Switching to the Credits Screen");
         Credits credits = new Credits(primaryStage, this);
@@ -307,36 +308,42 @@ public class MainMenu {
         primaryStage.setScene(credits.getScene());
     }
     
+    // Exit the application
     private void quitApplication() {
         System.out.println("Quitting the application");
         System.exit(0);
     }
     
+    // Play the music
     private void playMusic() {
     	sound.setFile(6);
     	sound.play();
     	sound.loop(6);
-   
     }
     
+    // Stop the music
     private void stopMusic() {
     	sound.stop();
     }
     
+    // Mute the music
     private void muteMusic() {
     	sound.setVolume(0);
     }
     
+    // Unmute the music
     private void unmuteMusic() {
     	sound.setVolume(1);
     }
     
+    // Setup the animation for the shooting stars
     private void initializeStarAnimation() {
         Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), e -> spawnStar()));
         timeline.setCycleCount(Timeline.INDEFINITE);
         timeline.play();
     }
-    
+   
+    // Spawn a shooting star in the background
     private void spawnStar() {
         ImageView star = new ImageView(new Image("assets/sprites/star.png"));
         double startX, startY;
@@ -375,6 +382,8 @@ public class MainMenu {
         
         animation.start();
     }
+    
+    // Methods for the high score texts
     
     private Text createHighScoreTimeText() {
     	Text text = new Text();
@@ -417,6 +426,8 @@ public class MainMenu {
     	
     	return String.format("%02d:%02d.%02d", minutes, seconds, milliseconds);
     }
+    
+    // Methods for toggling the music and SFX mute
     
     private void toggleMusic() {
     	settings.setMusicMuted(!settings.isMusicMuted());
