@@ -301,7 +301,7 @@ public class GameScreen {
 	}
 	
 	private void spawnEnemy() {
-		if (generalTimer > 9) {
+		if (generalTimer > 10) {
 			if (!hasLaser && laserInterval < 0) {
 				triggerLaser();
 				
