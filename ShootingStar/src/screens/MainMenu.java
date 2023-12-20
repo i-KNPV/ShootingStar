@@ -41,6 +41,7 @@ public class MainMenu {
 	private static final Image sfxOn = new Image("assets/buttons/sfx.png");
 	private static final Image sfxOff = new Image("assets/buttons/sfxmute.png");
 	private static final Image backgroundImage = new Image("assets/background/spacebg.gif");
+	private static final Image loadingImage = new Image("assets/background/loading.png");
 	
 	private Settings settings;
 	private ImageView view_bg;
@@ -254,13 +255,15 @@ public class MainMenu {
 
     private void showGameScreen() {
         System.out.println("Switching to the Game Screen");
+        ImageView loading = new ImageView(loadingImage);
+        mainMenuLayout.getChildren().add(loading);
         
         Task<Void> gameScreenTask = new Task<Void>() {
             @Override
             protected Void call() throws Exception {
                 GameScreen gameScreen = new GameScreen(primaryStage, highScore, highVitality, settings);
                 Platform.runLater(() -> {
-                
+                	
                     stopMusic();
                     animation.stop();
                     primaryStage.setScene(gameScreen.getScene());
