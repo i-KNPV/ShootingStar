@@ -24,18 +24,18 @@ import enemies.Enemy;
 import enemies.Laser;
 import enemies.Rocket;
 import enemies.Bird;
-import items.Boost;
-import items.Item;
-import items.Shimmer;
+import items.*;
 
 public class GameScreen {
 	// Preload the images
 	private static final Image rocketImage = new Image("assets/sprites/rocket.png");
 	private static final Image shimmerImage = new Image("assets/sprites/shimmer.gif");
 	private static final Image boostImage = new Image("assets/sprites/boost.png");
+	private static final Image shieldImage = new Image("assets/sprites/shield.png");
 	private static final Image HUD = new Image("assets/sprites/hud.png");
 	
 	private ImageView view_hud;
+	private ImageView shieldImageView;
 	private Stage primaryStage;
 	private Group root;
     private Star star;
@@ -73,6 +73,9 @@ public class GameScreen {
     private long lastBoostSpawnTime = 0;
     private final long BOOST_SPAWN_INTERVAL = 50_000_000_000L; // 50 seconds in nanoseconds
     
+    private long lastShieldSpawnTime = 0;
+    private final long SHIELD_SPAWN_INTERVAL = 100_000_000_000L; // 1 minutes and 40 seconds in nanoseconds
+    
     private long lastShimmerSpawnTime = 0;
     private final long SHIMMER_SPAWN_INTERVAL = 20_000_000_000L;
     
@@ -108,8 +111,9 @@ public class GameScreen {
         root.getChildren().add(view_hud);
         
         this.lastBoostSpawnTime = System.nanoTime();
+        // this.lastShieldSpawnTime = System.nanoTime();
 		
-		star = new Star(scene.getWidth(), scene.getHeight());	
+		star = new Star(scene.getWidth(), scene.getHeight(), this);	
 		this.inventory = star.viewInventory();
 		root.getChildren().add(star.getObject());
 		root.getChildren().add(star.getStarImage());
@@ -156,6 +160,8 @@ public class GameScreen {
                 vitalityText.toFront();
                 generalTimerText.toFront();
                 inventory.getImage().toFront();
+                inventory.getBoostImage().toFront();
+                inventory.getShieldImage().toFront();
             	
             	if (currentTime - lastSpawnTime >= spawnInterval 
             			&& enemySpawnCount < MAX_ENEMY_PHASE1
@@ -172,6 +178,11 @@ public class GameScreen {
             	if (currentTime - lastBoostSpawnTime >= BOOST_SPAWN_INTERVAL && !abort) {
                     spawnBoost();
                     lastBoostSpawnTime = currentTime;
+                }
+            	
+            	if (currentTime - lastShieldSpawnTime >= SHIELD_SPAWN_INTERVAL && !abort) {
+                    spawnShield();
+                    lastShieldSpawnTime = currentTime;
                 }
             	
             	ArrayList<Enemy> enemiesToRemove = new ArrayList<>();
@@ -191,6 +202,7 @@ public class GameScreen {
         	        if (item instanceof Shimmer && star.isCollidedWith((Shimmer) item)) {
         	  
         	        	playSoundEffect(4);
+
         	            
         	        	star.setVitality(((Shimmer) item).hasCollided(star), getScreen());
         	        	root.getChildren().remove(item.getImage()); 
@@ -201,9 +213,19 @@ public class GameScreen {
         	        if (item instanceof Boost && star.isCollidedWith((Boost) item)) {
         	        	  
         	        	playSoundEffect(10);
-        	            
+        	        	
         	        	star.viewInventory().addBoost();
         	        	root.getChildren().remove(item.getImage()); 
+        	        	root.getChildren().remove(item.getObject()); 
+        	            itemsToRemove.add(item);
+        	        }
+        	        
+        	        if (item instanceof Shield && star.isCollidedWith((Shield) item)) {
+      	        	  
+        	        	playSoundEffect(10);
+        	            
+        	        	star.viewInventory().addShield();
+        	        	root.getChildren().remove(item.getImage());
         	        	root.getChildren().remove(item.getObject()); 
         	            itemsToRemove.add(item);
         	        }
@@ -223,6 +245,10 @@ public class GameScreen {
 
                     if (item instanceof Boost) {
                         ((Boost) item).updatePosition();
+                    }
+                    
+                    if (item instanceof Shield) {
+                    	((Shield) item).updatePosition();
                     }
                 }
             	
@@ -297,6 +323,19 @@ public class GameScreen {
 	    Item.addItem(boost);
 	}
 	
+	private void spawnShield() {
+		System.out.println("Shield spawned!");
+		
+		shieldImageView = new ImageView(shieldImage);
+	    Shield shield = new Shield(root.getScene().getWidth(), root.getScene().getHeight(), this, shieldImageView);
+	    root.getChildren().add(shield.getImage());
+	    Item.addItem(shield);
+	}
+	
+	public ImageView getShieldImage() {
+		return shieldImageView;
+	}
+	
 	private void handleCollisions() { 
 		if (star.getVitality() < 1){
 			stopGame();
@@ -326,6 +365,8 @@ public class GameScreen {
         	view_hud.setVisible(false);
             vitalityText.setVisible(false);
             inventory.getImage().setVisible(false);
+            inventory.getBoostImage().setVisible(false);
+            inventory.getShieldImage().setVisible(false);
 
             star.stopMovement();
             star.setGameActive(false);
@@ -344,6 +385,10 @@ public class GameScreen {
                 if (item instanceof Boost) {
                     ((Boost) item).initiateSlowdown(); // Initiate slowdown for each Boost on screen
                 }
+                
+                if (item instanceof Shield) {
+                	((Shield) item).initiateSlowdown();
+                }
             }
             
             playSoundEffect(3);
@@ -359,19 +404,40 @@ public class GameScreen {
         }
     }
 	
-	private void positionInventoryImage() {
+	public void positionInventoryImage() {
 	    ImageView inventoryImage = inventory.getImage();
+	    ImageView boostImage = inventory.getBoostImage();
+	    ImageView shieldImage = inventory.getShieldImage();
 
 	    double hudX = view_hud.getLayoutX();
 	    double hudY = view_hud.getLayoutY();
 
 	    // Position the inventory image to the left of the HUD and slightly up
 	    inventoryImage.setLayoutX(hudX - inventoryImage.getFitWidth() - 10); // 10 is a small gap
-	    inventoryImage.setLayoutY(hudY + 30); // Positioning up by 20
+	    inventoryImage.setLayoutY(hudY + 30); // Positioning up by 30
 	    inventoryImage.setFitWidth(50);
 	    inventoryImage.setPreserveRatio(true);
-	    root.getChildren().add(inventoryImage);
+
+	    // Position boost and shield images at the same location as the inventory image
+	    boostImage.setLayoutX(inventoryImage.getLayoutX());
+	    boostImage.setLayoutY(inventoryImage.getLayoutY());
+	    boostImage.setFitWidth(50);
+	    boostImage.setPreserveRatio(true);
+
+	    shieldImage.setLayoutX(inventoryImage.getLayoutX());
+	    shieldImage.setLayoutY(inventoryImage.getLayoutY());
+	    shieldImage.setFitWidth(50);
+	    shieldImage.setPreserveRatio(true);
+
+	    // Add images to the root node
+	    root.getChildren().addAll(inventoryImage, boostImage, shieldImage);
+
+	    // Bring the images to the front
+	    inventoryImage.toFront();
+	    boostImage.toFront();
+	    shieldImage.toFront();
 	}
+
 
 	
 	private void showGameOverScreen() {
@@ -572,6 +638,9 @@ public class GameScreen {
 	    
 	    return String.format("%02d:%02d.%03d", minutes, seconds, milliseconds);
 	}
-
+	
+	public Star getStar() {
+		return star;
+	}
     
 }
