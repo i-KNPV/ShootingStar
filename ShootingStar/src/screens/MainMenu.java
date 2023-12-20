@@ -31,9 +31,9 @@ import javafx.scene.Node;
 public class MainMenu {
 	private static final Image logo = new Image("assets/buttons/logo.png", 450, 450, false, true);
 	private static final Image play = new Image("assets/buttons/play.png");
-	private static final Image tutorial = new Image("assets/buttons/tutorial.png");
+	private static final Image tutorial = new Image("assets/buttons/help.png");
 	private static final Image credits = new Image("assets/buttons/credits.png");
-	private boolean visited = false;
+	private static final Image quit = new Image("assets/buttons/quit.png");
 	private ImageView view_bg;
  	private Sound sound;
     private Stage primaryStage;
@@ -53,10 +53,9 @@ public class MainMenu {
         this.highVitality = highVitality;
         this.hasDied = hasDied;
         
-        if(visited == false) {
-        	this.sound = new Sound();
-            playMusic();
-        }
+        this.sound = new Sound();
+        playMusic();
+        
         
      // Load the images
         Image backgroundImage = new Image("assets/background/spacebg.gif");
@@ -74,28 +73,34 @@ public class MainMenu {
         ImageView view_play = new ImageView(play);
         ImageView view_tutorial = new ImageView(tutorial);
         ImageView view_credits = new ImageView(credits);
+        ImageView view_quit = new ImageView(quit);
         
         // Resize the images
         view_play.setFitWidth(200);
         view_tutorial.setFitWidth(200);
         view_credits.setFitWidth(200);
-
+        view_quit.setFitWidth(200);
+        
         view_play.setPreserveRatio(true);
         view_tutorial.setPreserveRatio(true);
         view_credits.setPreserveRatio(true);
+        view_quit.setPreserveRatio(true);
         
         // Create buttons for the main menu
         Button playButton = new Button();  
         Button tutorialButton = new Button();
         Button creditsButton = new Button();
+        Button quitButton = new Button();
         
         playButton.setStyle("-fx-background-color: transparent; -fx-border-width: 0;");
         tutorialButton.setStyle("-fx-background-color: transparent; -fx-border-width: 0;");
         creditsButton.setStyle("-fx-background-color: transparent; -fx-border-width: 0;");
- 
+        quitButton.setStyle("-fx-background-color: transparent; -fx-border-width: 0;");
+        
         playButton.setGraphic(view_play);
         tutorialButton.setGraphic(view_tutorial);
         creditsButton.setGraphic(view_credits);
+        quitButton.setGraphic(view_quit);
 
         // Set action handlers for the buttons 
         playButton.setOnAction(event -> {
@@ -114,6 +119,10 @@ public class MainMenu {
             hideChildren();
             showCredits();
         });
+        
+        
+        quitButton.setOnAction(event -> quitApplication());
+        
         // storeButton.setOnAction(event -> showStoreScreen());
         // settingsButton.setOnAction(event -> showSettingsScreen());
 
@@ -121,7 +130,7 @@ public class MainMenu {
         StackPane logoLayout = new StackPane(view_logo);
         VBox buttonsLayout = new VBox(-10);
         buttonsLayout.setAlignment(Pos.CENTER);
-        buttonsLayout.getChildren().addAll(playButton, tutorialButton, creditsButton);
+        buttonsLayout.getChildren().addAll(playButton, tutorialButton, creditsButton, quitButton);
         buttonsLayout.setTranslateY(200);
         view_logo.setTranslateY(-140); 
 
@@ -245,6 +254,11 @@ public class MainMenu {
         Credits credits = new Credits(primaryStage, this);
         primaryStage.setTitle("Shooting Star [Credits] [alpha]");
         primaryStage.setScene(credits.getScene());
+    }
+    
+    private void quitApplication() {
+        System.out.println("Quitting the application");
+        System.exit(0);
     }
     
     private void playMusic() {
