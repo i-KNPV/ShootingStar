@@ -73,10 +73,10 @@ public class GameScreen {
     private final long spawnInterval = NANOSECONDS_PER_SECOND; 
     
     private long lastBoostSpawnTime = 0;
-    private final long BOOST_SPAWN_INTERVAL = 50_000_000_000L; // 50 seconds in nanoseconds
+    private final long BOOST_SPAWN_INTERVAL = 40_000_000_000L; // 40 seconds in nanoseconds
     
     private long lastShieldSpawnTime = 0;
-    private final long SHIELD_SPAWN_INTERVAL = 100_000_000_000L; // 1 minutes and 40 seconds in nanoseconds
+    private final long SHIELD_SPAWN_INTERVAL = 70_000_000_000L; // 1 minutes and 10 seconds in nanoseconds
     
     private long lastShimmerSpawnTime = 0;
     private final long SHIMMER_SPAWN_INTERVAL = 20_000_000_000L;
@@ -364,8 +364,6 @@ public class GameScreen {
 	}
 	
 	private void spawnShield() {
-		System.out.println("Shield spawned!");
-		
 		shieldImageView = new ImageView(shieldImage);
 	    Shield shield = new Shield(root.getScene().getWidth(), root.getScene().getHeight(), this, shieldImageView);
 	    root.getChildren().add(shield.getImage());

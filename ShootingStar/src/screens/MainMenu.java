@@ -77,7 +77,9 @@ public class MainMenu {
         
         view_musicToggle = new ImageView(settings.isMusicMuted() ? musicOff : musicOn);
         view_sfxToggle = new ImageView(settings.isSfxMuted() ? sfxOff : sfxOn);
-        
+        view_musicToggle.setCache(true);
+        view_sfxToggle.setCache(true);
+
         // Put the volume images to buttons
         musicToggleButton = new Button();
         sfxToggleButton = new Button();
@@ -296,7 +298,7 @@ public class MainMenu {
     private void showTutorial() {
     	System.out.println("Switching to the Tutorial Screen");
     	Tutorial tutorial = new Tutorial(primaryStage, this);
-    	primaryStage.setTitle("Shooting Star [Game Screen] [alpha]");
+    	primaryStage.setTitle("Shooting Star");
         primaryStage.setScene(tutorial.getScene());
     }
     
@@ -304,7 +306,7 @@ public class MainMenu {
     private void showCredits() {
         System.out.println("Switching to the Credits Screen");
         Credits credits = new Credits(primaryStage, this);
-        primaryStage.setTitle("Shooting Star [Credits] [alpha]");
+        primaryStage.setTitle("Shooting Star");
         primaryStage.setScene(credits.getScene());
     }
     
@@ -432,13 +434,16 @@ public class MainMenu {
     private void toggleMusic() {
     	settings.setMusicMuted(!settings.isMusicMuted());
         view_musicToggle.setImage(settings.isMusicMuted() ? musicOff : musicOn);
-        if (settings.isMusicMuted()) {
-        	System.out.println("Music muted.");
-            muteMusic();
-        } else {
-        	System.out.println("Music volume back to 100");
-            unmuteMusic();
-        }
+        
+        new Thread(() -> {
+            if (settings.isMusicMuted()) {
+                muteMusic();
+                System.out.println("Music muted.");
+            } else {
+                unmuteMusic();
+                System.out.println("Music volume back to 100.");
+            }
+        }).start();
     }
 
     private void toggleSFX() {

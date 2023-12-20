@@ -20,7 +20,7 @@ public class Main extends Application {
     	// Create the main menu and push to primary stage
         MainMenu mainMenu = new MainMenu(primaryStage, 0, 0, false, settings);
         primaryStage.setScene(mainMenu.getScene());
-        primaryStage.setTitle("Shooting Star [Main Menu][alpha]");
+        primaryStage.setTitle("Shooting Star");
         primaryStage.setResizable(false);
         primaryStage.setAlwaysOnTop(true);
         primaryStage.show();
