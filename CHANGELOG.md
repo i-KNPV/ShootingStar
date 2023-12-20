@@ -1,3 +1,20 @@
+# Pre-Release 1 (2023-12-21 00:46)
+
+### Release Highlights
+- Feature: Added shield power-up
+- Feature: Implemented mute music and sfx toggles
+- Feature: Added low health animations
+- Feature: Added loading screen
+- Changed background
+- Added quit button
+- Adjusted rocket spawn
+- Revamped general HUD and inventory UI
+- Repositioned other HUD elements
+- Adjusted out of bounds message and mechanic
+- Optimized pre-loading and laser collision
+- Made out of bounds enemy deletion more seamless
+- Fixed bugs
+
 # 0.1.2 (2023-12-19 19:54)
 
 ### Release Highlights
