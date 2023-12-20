@@ -25,14 +25,17 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import javafx.scene.Node;
+
 
 public class MainMenu {
 	private static final Image logo = new Image("assets/buttons/logo.png", 450, 450, false, true);
 	private static final Image play = new Image("assets/buttons/play.png");
 	private static final Image tutorial = new Image("assets/buttons/tutorial.png");
 	private static final Image credits = new Image("assets/buttons/credits.png");
-			
-	private Sound sound;
+	private boolean visited = false;
+	private ImageView view_bg;
+ 	private Sound sound;
     private Stage primaryStage;
     private Scene scene;
     private double highScore;
@@ -50,12 +53,14 @@ public class MainMenu {
         this.highVitality = highVitality;
         this.hasDied = hasDied;
         
-        this.sound = new Sound();
-        playMusic();
+        if(visited == false) {
+        	this.sound = new Sound();
+            playMusic();
+        }
         
      // Load the images
         Image backgroundImage = new Image("assets/background/spacebg.gif");
-        ImageView view_bg = new ImageView(backgroundImage); 
+        view_bg = new ImageView(backgroundImage); 
         view_bg.setRotate(90);
         view_bg.setPreserveRatio(true);
         
@@ -100,11 +105,13 @@ public class MainMenu {
 
         tutorialButton.setOnAction(event -> {
             System.out.println("Tutorial button clicked"); // Debug print
+            hideChildren();
             showTutorial();
         });
         
         creditsButton.setOnAction(event -> {
             System.out.println("Credits button clicked"); // Debug print
+            hideChildren();
             showCredits();
         });
         // storeButton.setOnAction(event -> showStoreScreen());
@@ -207,17 +214,35 @@ public class MainMenu {
 
         new Thread(gameScreenTask).start();
     }
+   
+    private void hideChildren() {
+        for (Node child : mainMenuLayout.getChildren()) {
+            if (child != view_bg) {
+                child.setVisible(false);
+            }
+        }
+    }
+
+    
+    public void showChildren() {
+        for (Node child : mainMenuLayout.getChildren()) {
+            if (child != view_bg) {
+                child.setVisible(true);
+            }
+        }
+    }
+
     
     private void showTutorial() {
     	System.out.println("Switching to the Tutorial Screen");
-    	Tutorial tutorial = new Tutorial(primaryStage, highScore);
+    	Tutorial tutorial = new Tutorial(primaryStage, this);
     	primaryStage.setTitle("Shooting Star [Game Screen] [alpha]");
         primaryStage.setScene(tutorial.getScene());
     }
 
     private void showCredits() {
         System.out.println("Switching to the Credits Screen");
-        Credits credits = new Credits(primaryStage);
+        Credits credits = new Credits(primaryStage, this);
         primaryStage.setTitle("Shooting Star [Credits] [alpha]");
         primaryStage.setScene(credits.getScene());
     }
@@ -295,6 +320,7 @@ public class MainMenu {
     	
     	return text;
     }
+
   
     private Font loadCustomFont(String fontPath, double size) {
 		try {
@@ -317,4 +343,6 @@ public class MainMenu {
     	
     	return String.format("%02d:%02d.%02d", minutes, seconds, milliseconds);
     }
+    
+    
 }
