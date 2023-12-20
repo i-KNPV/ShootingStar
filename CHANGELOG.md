@@ -1,3 +1,10 @@
+# 1.0.0 (2023-12-21 03:50)
+
+### Release Highlights
+- Added comments to all classes
+- Finalized code
+- Replaced main menu music with HQ version to prevent stuttering
+
 # Pre-Release 1 (2023-12-21 00:46)
 
 ### Release Highlights
