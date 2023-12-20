@@ -93,11 +93,11 @@ public class GameOver{
         
         timeScoreText = createHighScoreTimeText();
         timeScoreText.setLayoutX((scene.getWidth() - timeScoreText.getLayoutBounds().getWidth()) / 2);
-        timeScoreText.setLayoutY(height / 2 + 60);
+        timeScoreText.setLayoutY(height / 2 + 70);
         
         vitalityScoreText = createHighScoreVitalityText();
         vitalityScoreText.setLayoutX((scene.getWidth() - vitalityScoreText.getLayoutBounds().getWidth()) / 2);
-        vitalityScoreText.setLayoutY(height / 2 + 90); 
+        vitalityScoreText.setLayoutY(height / 2 + 100); 
      
         root.getChildren().addAll(image, timeScoreText, vitalityScoreText, buttonsLayout);
         
@@ -190,7 +190,7 @@ public class GameOver{
     private Text createHighScoreTimeText() {
     	Text text = new Text();
     	String scoreToTime = convertSecondToTimeFormat(highScore);
-    	text.setText("Time Survived: " + scoreToTime);
+    	text.setText("Time: " + scoreToTime);
     	text.setFont(loadCustomFont("/assets/fonts/TitanOne-Regular.ttf", 18));
     	
     	if (newHighScore) text.setFill(Color.GOLD);
@@ -201,7 +201,7 @@ public class GameOver{
     
     private Text createHighScoreVitalityText() {
     	Text text = new Text();
-    	text.setText("Highest Vitality Attained: " + localHighVitality);
+    	text.setText("Shine: " + localHighVitality);
     	text.setFont(loadCustomFont("/assets/fonts/TitanOne-Regular.ttf", 18));
     	
     	if (newHighVitality) text.setFill(Color.GOLD);

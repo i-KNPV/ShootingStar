@@ -33,7 +33,9 @@ public class GameScreen {
 	private static final Image rocketImage = new Image("assets/sprites/rocket.png");
 	private static final Image shimmerImage = new Image("assets/sprites/shimmer.gif");
 	private static final Image boostImage = new Image("assets/sprites/boost.png");
+	private static final Image HUD = new Image("assets/sprites/hud.png");
 	
+	private ImageView view_hud;
 	private Stage primaryStage;
 	private Group root;
     private Star star;
@@ -98,18 +100,25 @@ public class GameScreen {
         view_bg.setPreserveRatio(true);
         root.getChildren().add(view_bg);
         
+        view_hud = new ImageView(HUD);
+        view_hud.setFitWidth(150);
+        view_hud.setPreserveRatio(true);
+        view_hud.setLayoutX((root.getScene().getWidth() - view_hud.getFitWidth()) / 2);
+        view_hud.setLayoutY(45); 
+        
+        root.getChildren().add(view_hud);
+        
         this.lastBoostSpawnTime = System.nanoTime();
 		
 		star = new Star(scene.getWidth(), scene.getHeight());	
 		this.inventory = star.viewInventory();
 		root.getChildren().add(star.getObject());
 		root.getChildren().add(star.getStarImage());
-		
+	
 		gameOverText = createGameOverText();
 		root.getChildren().add(gameOverText);
 		gameOverText.setVisible(false);
 		
-		timerBox = createTimerBox(); 
 		messageText = createMessageText();
 		timerText = createTimerText();	
 		countdownText = createCountdownText();
@@ -121,15 +130,16 @@ public class GameScreen {
 		generalTimerText.setVisible(true);
 		
 		vitalityText = createVitalityText();
-		vitalityText.setLayoutX((scene.getWidth() - vitalityText.getLayoutBounds().getWidth()) / 2);
-		vitalityText.setLayoutY(timerBox.getLayoutY() + timerBox.getHeight() + 20); 
+		double centerX = (scene.getWidth() - vitalityText.getLayoutBounds().getWidth()) / 2;
+		vitalityText.setLayoutX(centerX);
+		vitalityText.setLayoutY(view_hud.getLayoutY() + 60); 
 		
 		damageText = createDamageText();
 		double damageTextX = vitalityText.getLayoutX() + vitalityText.getLayoutBounds().getWidth() + 10; // 10 is a small gap
 		damageText.setLayoutX(damageTextX);
 		damageText.setLayoutY(vitalityText.getLayoutY());
 
-	    root.getChildren().addAll(countdownText, timerBox, generalTimerText, vitalityText, damageText);
+	    root.getChildren().addAll(countdownText, generalTimerText, vitalityText, damageText);
 		scene.setOnKeyPressed(event -> star.handleKeyPress(event.getCode()));
 		scene.setOnKeyReleased(event -> star.handleKeyRelease(event.getCode()));
 		
@@ -213,7 +223,7 @@ public class GameScreen {
                     }
                 }
             	
-            	vitalityText.setText("Vitality: " + star.getVitality());
+            	vitalityText.setText(Integer.toString(star.getVitality()));
                 damageText.setText(star.getDamageText());
                 
                 if (!star.getDamageText().isEmpty()) {
@@ -310,7 +320,7 @@ public class GameScreen {
         	noise.stop();
         	
         	generalTimerText.setVisible(false);
-            timerBox.setVisible(false);
+        	view_hud.setVisible(false);
             vitalityText.setVisible(false);
             inventory.getImage().setVisible(false);
 
@@ -349,10 +359,10 @@ public class GameScreen {
 	private void positionInventoryImage() {
         ImageView inventoryImage = inventory.getImage();
 
-        double timerBoxX = timerBox.getLayoutX();
-        double timerBoxY = timerBox.getLayoutY();
-        double timerBoxWidth = timerBox.getWidth();
-        double timerBoxHeight = timerBox.getHeight();
+        double timerBoxX = view_hud.getLayoutX();
+        double timerBoxY = view_hud.getLayoutY();
+        double timerBoxWidth = view_hud.getFitWidth();
+        double timerBoxHeight = view_hud.getFitHeight();
 
         // Position the inventory image beside the timer box
         inventoryImage.setLayoutX(timerBoxX + timerBoxWidth + 10); // 10 is a small gap
@@ -406,21 +416,19 @@ public class GameScreen {
 			generalTimerText.setFont(loadCustomFont("/assets/fonts/TitanOne-Regular.ttf", 30));
 	    	generalTimerText.setTextAlignment(TextAlignment.CENTER);
 	    	generalTimerText.setLayoutX((root.getScene().getWidth() - generalTimerText.getLayoutBounds().getWidth()) / 2);
-	    	generalTimerText.setLayoutY((root.getScene().getHeight() / 2) + 32);
-		    timerBox.setLayoutX((root.getScene().getWidth() - timerBox.getWidth()) / 2);
-		    timerBox.setLayoutY(root.getScene().getHeight() / 2); 
+	    	generalTimerText.setLayoutY((root.getScene().getHeight() / 2) + 100);
 		}
 		
-		if (!root.getChildren().contains(timerBox)) {
-	        root.getChildren().add(timerBox);
+		if (!root.getChildren().contains(view_hud)) {
+	        root.getChildren().add(view_hud);
 	    }
 	    if (!root.getChildren().contains(generalTimerText)) {
 	        root.getChildren().add(generalTimerText);
 	    }
 		
-	    generalTimerText.setLayoutX((root.getScene().getWidth() - generalTimerText.getLayoutBounds().getWidth()) / 2);
-		generalTimerText.setText(String.format("%.0f", generalTimer));
-		
+	    generalTimerText.setLayoutX(((root.getScene().getWidth() - generalTimerText.getLayoutBounds().getWidth()) / 2) + 10);
+	    vitalityText.setLayoutX(((root.getScene().getWidth() - vitalityText.getLayoutBounds().getWidth()) / 2) + 3);
+	    generalTimerText.setText(convertSecondToTimeFormat(generalTimer));
 	}
 	
     private void handleOutOfBoundsMessages() {
@@ -479,13 +487,13 @@ public class GameScreen {
     
     private Text createGeneralTimerText() {
         Text text = new Text();
-        text.setFont(loadCustomFont("/assets/fonts/TitanOne-Regular.ttf", 30));
+        text.setFont(loadCustomFont("/assets/fonts/TitanOne-Regular.ttf", 18));
         text.setFill(Color.BLACK);
         text.setTextAlignment(TextAlignment.CENTER);
-        text.setLayoutY(80);
+        text.setLayoutY(185);
         text.setVisible(true);
         text.toFront();
-        text.setLayoutX(((root.getScene().getWidth() - text.getLayoutBounds().getWidth()) / 2) - 8);
+        text.setLayoutX(((root.getScene().getWidth() - text.getLayoutBounds().getWidth()) / 2) - 15);
         return text;
     }
     
@@ -499,8 +507,8 @@ public class GameScreen {
    
     private Text createVitalityText() {
     	Text text = new Text();
-    	text = new Text("Vitality: 100");
-    	text.setFont(loadCustomFont("/assets/fonts/TitanOne-Regular.ttf", 18));
+    	text = new Text("");
+    	text.setFont(loadCustomFont("/assets/fonts/TitanOne-Regular.ttf", 48));
     	text.setFill(Color.BLACK);  	
     	return text;
     }
@@ -511,20 +519,6 @@ public class GameScreen {
         text.setFill(Color.RED);
         text.setVisible(true); // Initially set to visible or invisible, as per your requirement
         return text;
-    }
-    
-    private Rectangle createTimerBox() {
-    	Rectangle timerBox = new Rectangle(200,50);
-    	timerBox.setArcWidth(20); // Rounded corners
-        timerBox.setArcHeight(20);
-        timerBox.setFill(Color.WHITE);
-        timerBox.setStroke(Color.BLACK);
-        timerBox.setVisible(true);
-        timerBox.setWidth(100); 
-	    timerBox.setHeight(50); 
-	    timerBox.setLayoutX((root.getScene().getWidth() - timerBox.getWidth()) / 2);
-	    timerBox.setLayoutY(45); 
-	    return timerBox;
     }
     
     public void playMusic(int i) {
@@ -580,5 +574,14 @@ public class GameScreen {
 	public int getGlobalHighVitality() {
 		return globalHighVitality;
 	}
+	
+	private static String convertSecondToTimeFormat(double time) {
+	    int minutes = (int) time / 60;
+	    int seconds = (int) time % 60;
+	    int milliseconds = (int) ((time - (int)time) * 1000);
+	    
+	    return String.format("%02d:%02d.%03d", minutes, seconds, milliseconds);
+	}
+
     
 }
