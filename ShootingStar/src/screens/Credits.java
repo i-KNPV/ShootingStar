@@ -3,6 +3,7 @@ package screens;
 
 import application.Sound;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
@@ -22,32 +23,40 @@ public class Credits {
     private Stage primaryStage;
     private Scene creditsScene;
     private MainMenu menu;
+    private StackPane creditsLayout;
+    
 
     public Credits(Stage primaryStage, MainMenu mainMenu) {
     	this.menu = mainMenu;
         this.primaryStage = primaryStage;
-
+        
         Image backgroundImage = new Image("assets/background/spacebg.gif");
         ImageView view_bg = new ImageView(backgroundImage);
         view_bg.setRotate(90);
         view_bg.setPreserveRatio(true);
 
         // Create a layout for the credits screen
-        StackPane creditsLayout = new StackPane();
+        
+        creditsLayout = new StackPane();
 
         VBox creditsBox = new VBox(20);
         creditsBox.setAlignment(Pos.CENTER);
-
-//        // Add credits content
-//        creditsBox.getChildren().add(createCreditLabel("Game Developed By: Your Team"));
-//        creditsBox.getChildren().add(createCreditLabel("Graphics Design: Graphic Designer"));
-//        creditsBox.getChildren().add(createCreditLabel("Music and Sound Effects: Sound Designer"));
+        creditsBox.setVisible(true);
 
         // Add an image with specified width and height
-        ImageWithPath imageWithPath = new ImageWithPath("assets/credits/Developers.png", 1000, 800);
-        ImageView imageView = createImageView(imageWithPath);
-        // creditsBox.getChildren().add(imageView);
+        ImageWithPath developers = new ImageWithPath("assets/credits/Developers.png", 1000, 800);
+        ImageView imageView = createImageView(developers);
+        
+        VBox starsBox = new VBox(20);
+        starsBox.setAlignment(Pos.CENTER);
+        
+        ImageWithPath russgif = new ImageWithPath("assets/credits/RUSS.gif", 360, 360);
+        ImageWithPath kylegif = new ImageWithPath("assets/credits/KYLE.gif", 360, 360);
+        ImageView russ = createImageView(russgif);
+        ImageView kyle = createImageView(kylegif);
+        starsBox.getChildren().addAll(russ, kyle);
 
+        
 
 //        // Add a back button with an image
 //        Button backButton = new Button();
@@ -74,12 +83,12 @@ public class Credits {
 
         // Create the credits scene
         creditsScene = new Scene(creditsLayout, 600, 800);
-        // Set up key event handling
         
-        creditsScene.setOnKeyPressed(event -> handleKeyPress(event.getCode()));
+        // Set up key event handling
+        creditsScene.setOnKeyPressed(event -> handleKeyPress(event.getCode(), starsBox, creditsBox));
     }
 
-    private void handleKeyPress(KeyCode code) {
+    private void handleKeyPress(KeyCode code,VBox creditsBox,VBox starsBox) {
         switch (code) {
             case ESCAPE:
             	showMainMenu();
@@ -87,11 +96,28 @@ public class Credits {
             case SPACE:
             	showMainMenu();
             	break;
-            case RIGHT:
-            	showMainMenu();
+            case RIGHT: // the secret
+            	System.out.println("uwu");
+            	creditsBox.setVisible(false);
+                starsBox.setVisible(true);
+//            	for (Node child : creditsLayout.getChildren()) {
+//                    if (child != view_bg) {
+//                        child.setVisible(false);
+//                    }
+//                }
+//            	for (Node child : starsLayout.getChildren()) {
+//                    if (child != view_bg) {
+//                        child.setVisible(true);
+//                    }
+//                }
             	break;
         }
     }
+    
+    public void showStars() {
+    	
+    }
+    
     
     public Scene getScene() {
         return creditsScene;
