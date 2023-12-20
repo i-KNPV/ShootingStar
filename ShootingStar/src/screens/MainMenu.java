@@ -52,10 +52,9 @@ public class MainMenu {
         this.highScore = highScore;
         this.highVitality = highVitality;
         this.hasDied = hasDied;
-        
+
         this.sound = new Sound();
         playMusic();
-        
         
      // Load the images
         Image backgroundImage = new Image("assets/background/spacebg.gif");
