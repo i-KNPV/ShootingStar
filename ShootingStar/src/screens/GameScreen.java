@@ -17,6 +17,7 @@ import javafx.scene.text.TextAlignment;
 import javafx.scene.shape.Rectangle;
 import java.util.ArrayList;
 
+import application.Settings;
 import application.Sound;
 import player.Inventory;
 import player.Star;
@@ -35,6 +36,7 @@ public class GameScreen {
 	private static final Image HUD = new Image("assets/sprites/hud.png");
 	private static final Image background = new Image("assets/background/main.gif");
 	
+	private Settings settings;
 	private ImageView view_hud;
 	private ImageView shieldImageView;
 	private Stage primaryStage;
@@ -80,19 +82,23 @@ public class GameScreen {
     private long lastShimmerSpawnTime = 0;
     private final long SHIMMER_SPAWN_INTERVAL = 20_000_000_000L;
     
-    public GameScreen(Stage primaryStage, double highScore, int highVitality) {
+    public GameScreen(Stage primaryStage, double highScore, int highVitality, Settings settings) {
 		this.primaryStage = primaryStage;
 		this.highScore = highScore;
 		this.globalHighVitality = highVitality;
+		this.settings = settings;
 		
 		bgmusic = new Sound();
 		sound = new Sound();
 		noise = new Sound();
-		playMusic(1);
 		
-		noise.setFile(8);
-		noise.play();
-		noise.loop(8);
+		if(!settings.isMusicMuted())playMusic(1);
+		
+		if(!settings.isSfxMuted()) {
+			noise.setFile(8);
+			noise.play();
+			noise.loop(8);
+		}
 		
 		root = new Group();
 		Scene scene = new Scene(root, 600, 800, Color.WHITE);
@@ -113,7 +119,7 @@ public class GameScreen {
         this.lastBoostSpawnTime = System.nanoTime();
         //this.lastShieldSpawnTime = System.nanoTime();
 		
-		star = new Star(scene.getWidth(), scene.getHeight(), this);	
+		star = new Star(scene.getWidth(), scene.getHeight(), this, settings);	
 		this.inventory = star.viewInventory();
 		root.getChildren().add(star.getObject());
 		root.getChildren().add(star.getStarImage());
@@ -200,8 +206,8 @@ public class GameScreen {
             	ArrayList<Item> itemsToRemove = new ArrayList<>();
             	for (Item item : Item.getItems()) {
         	        if (item instanceof Shimmer && star.isCollidedWith((Shimmer) item)) {
-        	  
-        	        	playSoundEffect(4);
+        	        	
+        	        	if (!settings.isSfxMuted()) playSoundEffect(4);
 
         	            
         	        	star.setVitality(((Shimmer) item).hasCollided(star), getScreen());
@@ -212,7 +218,7 @@ public class GameScreen {
         	        
         	        if (item instanceof Boost && star.isCollidedWith((Boost) item)) {
         	        	  
-        	        	playSoundEffect(10);
+        	        	if (!settings.isSfxMuted()) playSoundEffect(10);
         	        	
         	        	star.viewInventory().addBoost();
         	        	root.getChildren().remove(item.getImage()); 
@@ -222,7 +228,7 @@ public class GameScreen {
         	        
         	        if (item instanceof Shield && star.isCollidedWith((Shield) item)) {
       	        	  
-        	        	playSoundEffect(10);
+        	        	if (!settings.isSfxMuted()) playSoundEffect(10);
         	            
         	        	star.viewInventory().addShield();
         	        	root.getChildren().remove(item.getImage());
@@ -311,7 +317,7 @@ public class GameScreen {
 	
 	private void spawnShimmer() {
 		ImageView shimmerImageView = new ImageView(shimmerImage);
-	    Shimmer shimmer = new Shimmer(getScene().getWidth(), getScene().getHeight(), this, shimmerImageView);
+	    Shimmer shimmer = new Shimmer(getScene().getWidth(), getScene().getHeight(), this, shimmerImageView, settings);
 	    root.getChildren().add(shimmerImageView);
 	    Item.addItem(shimmer);
 	}
@@ -358,8 +364,11 @@ public class GameScreen {
 	
 	private void stopGame() {
         if (!abort) {
-        	stopMusic();
-        	noise.stop();
+        	
+        	if (!settings.isSfxMuted()) {
+	        	stopMusic();
+	        	noise.stop();
+        	}
         	
         	generalTimerText.setVisible(false);
         	view_hud.setVisible(false);
@@ -391,7 +400,7 @@ public class GameScreen {
                 }
             }
             
-            playSoundEffect(3);
+            if (!settings.isSfxMuted()) playSoundEffect(3);
             
             whiteCover.setVisible(true);
             whiteCover.toFront();
@@ -441,7 +450,7 @@ public class GameScreen {
 
 	
 	private void showGameOverScreen() {
-		GameOver gameOverScreen = new GameOver(root.getScene().getWidth(), root.getScene().getHeight(), primaryStage, this);
+		GameOver gameOverScreen = new GameOver(root.getScene().getWidth(), root.getScene().getHeight(), primaryStage, this, settings);
 		primaryStage.setScene(gameOverScreen.getScene());
 	}
 
@@ -454,7 +463,7 @@ public class GameScreen {
 	}
 	
 	public void triggerLaser() {
-		Laser laser = new Laser(root.getScene().getWidth(), root.getScene().getHeight(), this); // root is your root container
+		Laser laser = new Laser(root.getScene().getWidth(), root.getScene().getHeight(), this, settings); // root is your root container
         laser.activate(star); // player is your Star instance
 	}
 	
@@ -642,5 +651,4 @@ public class GameScreen {
 	public Star getStar() {
 		return star;
 	}
-    
 }

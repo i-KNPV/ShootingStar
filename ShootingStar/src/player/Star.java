@@ -11,6 +11,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import java.util.HashSet;
 
+import application.Settings;
 import application.Sound;
 import enemies.Enemy;
 import items.Item;
@@ -44,6 +45,7 @@ public class Star {
     private static final double VITALITY_DECREMENT_VALUE = 1.0;
     private static final double OBJECT_RADIUS = 13.0;
     private HashSet<KeyCode> pressedKeys = new HashSet<>();
+    private Settings settings;
  
     
     private static final Image NORMAL = new Image("assets/sprites/star.png");
@@ -51,19 +53,21 @@ public class Star {
     private static final Image DEAD = new Image("assets/sprites/star_death.png");
     private static final Image SHIELD = new Image("assets/sprites/shield.png");
     
-    public Star(double sceneWidth, double sceneHeight, GameScreen screen) {
+    public Star(double sceneWidth, double sceneHeight, GameScreen screen, Settings settings) {
     	this.screen = screen;
+    	this.settings = settings;
     	inventory = new Inventory();
         inventory.clearInventory();
-    	
+    
     	soundEffect = new Sound();
     	lowHealthSound = new Sound();
     	constantTwinkle = new Sound();
-    	
-    	constantTwinkle.setFile(5);
-    	constantTwinkle.setVolume(0.85f);
-    	constantTwinkle.play();
-    	constantTwinkle.loop(5);
+	    constantTwinkle.setFile(5);
+	    constantTwinkle.setVolume(0.85f);
+	    if (!settings.isSfxMuted()) {
+	    	constantTwinkle.play();
+	    	constantTwinkle.loop(5);
+        }
     	
     	this.objectX = sceneWidth / 2;
     	this.objectY = sceneHeight / 2;
@@ -105,9 +109,11 @@ public class Star {
     	if (keyCode == KeyCode.SPACE && inventory.getInventory() == inventory.SHIELD) {
             hasShield = true;
             showActiveShield();
-            soundEffect.setFile(11);
-			soundEffect.play();
-            
+            if (!settings.isSfxMuted()) { 
+            	soundEffect.setFile(11);
+				soundEffect.play();
+				
+            } 
             inventory.clearInventory();
         }
     }
@@ -157,8 +163,10 @@ public class Star {
     public void handleCollisions(Enemy enemy) {
     	if (!isInvincible && enemy.isCollidedWithStar(this)) {
     		if (hasShield) {
-    			soundEffect.setFile(12);
-    			soundEffect.play();
+    			 if (!settings.isSfxMuted()) {
+    				 soundEffect.setFile(12);
+    				 soundEffect.play();
+    			 }
     			hasShield = false;
     			
     			isInvincible = true;
@@ -170,8 +178,10 @@ public class Star {
     		} else {
         		int damage = enemy.getDamage();
         		
-        		soundEffect.setFile(0);
-        		soundEffect.play();
+        		if (!settings.isSfxMuted()) {
+	        		soundEffect.setFile(0);
+	        		soundEffect.play();
+        		}
         		vitality -= damage;
         		isInvincible = true;
                 invincibilityTime = 0; 
@@ -263,12 +273,15 @@ public class Star {
     	}
     	
     	if (vitality < 40 && !isLowHealthSoundPlaying && vitality > 0) {
-    		lowHealthSound.setFile(2);
-    		lowHealthSound.play();
-    		lowHealthSound.loop(2);
+    		
+	    	lowHealthSound.setFile(2);
+	    	if (!settings.isSfxMuted()) {
+	    		lowHealthSound.play();
+	    		lowHealthSound.loop(2);
+    		}
             isLowHealthSoundPlaying = true;
         } else if ((vitality >= 40 || vitality == 0) && isLowHealthSoundPlaying) {
-    		lowHealthSound.stop();
+        	if (!settings.isSfxMuted()) lowHealthSound.stop();
             isLowHealthSoundPlaying = false;
         }
     }

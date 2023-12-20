@@ -11,6 +11,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 import player.Star;
+import application.Settings;
 import application.Sound;
 import screens.GameScreen;
 
@@ -25,12 +26,14 @@ public class Laser extends Enemy{
     private static final Duration LASER_ACTIVE_DURATION = Duration.seconds(3);
     private static final Duration DELAY_BEFORE_ACTIVE = Duration.seconds(0.6);
     private static final Duration DISPERSE_DURATION = Duration.seconds(0.5);
+    private Settings settings;
 
-    public Laser(double sceneWidth, double sceneHeight, GameScreen screen) {
+    public Laser(double sceneWidth, double sceneHeight, GameScreen screen, Settings settings) {
         super(sceneWidth, sceneHeight, screen);
     	this.root = screen.getRoot();
         this.screen = screen;
         this.sound = new Sound();
+        this.settings = settings;
         
         double randomX = Math.random() * (sceneWidth - 20);
         
@@ -107,8 +110,10 @@ public class Laser extends Enemy{
     }
     
     private void playSound() {
-    	sound.setFile(9);
-    	sound.play();
+    	if (!settings.isSfxMuted())  {
+    		sound.setFile(9);
+        	sound.play();
+    	}
     }
     
     @Override

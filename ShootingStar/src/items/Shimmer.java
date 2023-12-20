@@ -1,5 +1,6 @@
 package items;
 
+import application.Settings;
 import application.Sound;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -18,9 +19,11 @@ public class Shimmer extends Item{
     private final static int HEALTH = 40;
     private double SPEED;
     private double originalSpeed;
+    private Settings settings;
 	
-	public Shimmer(double sceneWidth, double sceneHeight, GameScreen scene, ImageView image) {
+	public Shimmer(double sceneWidth, double sceneHeight, GameScreen scene, ImageView image, Settings settings) {
 		super(sceneWidth, sceneHeight, scene);
+		this.settings = settings;
 		
 		this.image = image;
 		this.sound = new Sound();
@@ -30,10 +33,12 @@ public class Shimmer extends Item{
 		this.object.setVisible(false);
 		this.SPEED = 2.0;
 		
-		sound.setFile(7);
-		sound.play();
-		sound.loop(7);
-
+		if (!settings.isSfxMuted()) {
+			sound.setFile(7);
+			sound.play();
+			sound.loop(7);
+		}
+	
 		image.setFitWidth(ITEM_RADIUS * 2.5); 
 		image.setFitHeight(ITEM_RADIUS * 2.5);
 		image.setPreserveRatio(true);
@@ -104,7 +109,9 @@ public class Shimmer extends Item{
     }
 	
 	public void stopSoundEffect() {
-		sound.stop();
+		if (!settings.isSfxMuted()) {
+			sound.stop();
+		}
 	}
 	
 	public ImageView getImage() {

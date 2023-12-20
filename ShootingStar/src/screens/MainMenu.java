@@ -1,5 +1,6 @@
 package screens;
 
+import application.Settings;
 import application.Sound;
 import javafx.animation.AnimationTimer;
 import javafx.animation.FadeTransition;
@@ -10,6 +11,7 @@ import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.animation.KeyFrame;
 import javafx.animation.PathTransition;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -34,7 +36,18 @@ public class MainMenu {
 	private static final Image tutorial = new Image("assets/buttons/help.png");
 	private static final Image credits = new Image("assets/buttons/credits.png");
 	private static final Image quit = new Image("assets/buttons/quit.png");
+	private static final Image musicOn = new Image("assets/buttons/bg.png");
+	private static final Image musicOff = new Image("assets/buttons/bgmute.png");
+	private static final Image sfxOn = new Image("assets/buttons/sfx.png");
+	private static final Image sfxOff = new Image("assets/buttons/sfxmute.png");
+	private static final Image backgroundImage = new Image("assets/background/spacebg.gif");
+	
+	private Settings settings;
 	private ImageView view_bg;
+	private ImageView view_musicToggle;
+	private ImageView view_sfxToggle;
+	private Button musicToggleButton;
+	private Button sfxToggleButton;
  	private Sound sound;
     private Stage primaryStage;
     private Scene scene;
@@ -44,23 +57,62 @@ public class MainMenu {
     private Text highVitalityText;
     private StackPane mainMenuLayout;
     private boolean hasDied;
+    private boolean musicMuted;
+    private boolean sfxMuted;
     private Pane starContainer;
     private AnimationTimer animation;
 
-    public MainMenu(Stage primaryStage, double highScore, int highVitality, boolean hasDied) {
-        this.primaryStage = primaryStage;
+    public MainMenu(Stage primaryStage, double highScore, int highVitality, boolean hasDied, Settings settings) {
+    	this.primaryStage = primaryStage;
         this.highScore = highScore;
         this.highVitality = highVitality;
         this.hasDied = hasDied;
-
+        this.settings = settings;
+       
         this.sound = new Sound();
         playMusic();
+        if (settings.isSfxMuted()) muteMusic();
         
-     // Load the images
-        Image backgroundImage = new Image("assets/background/spacebg.gif");
+        // Load the images
         view_bg = new ImageView(backgroundImage); 
         view_bg.setRotate(90);
         view_bg.setPreserveRatio(true);
+        
+        view_musicToggle = new ImageView(musicOn);
+        view_sfxToggle = new ImageView(sfxOn);
+        
+        musicMuted = false;
+        sfxMuted = false;
+        
+        musicToggleButton = new Button();
+        sfxToggleButton = new Button();
+        musicToggleButton.setGraphic(view_musicToggle);
+        sfxToggleButton.setGraphic(view_sfxToggle);
+        
+        view_musicToggle.setFitWidth(50);  
+        view_musicToggle.setFitHeight(50);
+        view_sfxToggle.setFitWidth(50);    
+        view_sfxToggle.setFitHeight(50);   
+        view_musicToggle.setOpacity(70);
+        view_sfxToggle.setOpacity(70);
+        view_musicToggle.setPreserveRatio(true);
+        view_sfxToggle.setPreserveRatio(true);
+
+        
+        musicToggleButton.setStyle("-fx-background-color: transparent; -fx-border-width: 0;");
+        sfxToggleButton.setStyle("-fx-background-color: transparent; -fx-border-width: 0;");
+        
+        musicToggleButton.setOnAction(event -> toggleMusic());
+        sfxToggleButton.setOnAction(event -> toggleSFX());
+        
+        VBox soundControlLayout = new VBox(-10); // Adjust spacing as needed
+        soundControlLayout.setPadding(new Insets(20, 20, 20, 20));
+        soundControlLayout.getChildren().addAll(musicToggleButton, sfxToggleButton);
+        soundControlLayout.setAlignment(Pos.BOTTOM_LEFT);
+        soundControlLayout.setOpacity(0);
+        soundControlLayout.setMaxSize(VBox.USE_PREF_SIZE, VBox.USE_PREF_SIZE);
+        soundControlLayout.setPickOnBounds(false);
+        
         
         starContainer = new Pane();
         mainMenuLayout = new StackPane();
@@ -122,18 +174,16 @@ public class MainMenu {
         
         quitButton.setOnAction(event -> quitApplication());
         
-        // storeButton.setOnAction(event -> showStoreScreen());
-        // settingsButton.setOnAction(event -> showSettingsScreen());
-
         // Layout for the main menu
         StackPane logoLayout = new StackPane(view_logo);
         VBox buttonsLayout = new VBox(-10);
         buttonsLayout.setAlignment(Pos.CENTER);
         buttonsLayout.getChildren().addAll(playButton, tutorialButton, creditsButton, quitButton);
-        buttonsLayout.setTranslateY(200);
+        buttonsLayout.setTranslateY(230);
         view_logo.setTranslateY(-140); 
 
-        mainMenuLayout.getChildren().addAll(logoLayout, buttonsLayout);
+        mainMenuLayout.getChildren().addAll(logoLayout, buttonsLayout, soundControlLayout);
+        StackPane.setAlignment(soundControlLayout, Pos.BOTTOM_LEFT);
         
         highScoreText = createHighScoreTimeText();
         double highScoreTextY = (scene.getHeight() / 2) + 60 - (scene.getHeight() / 2);
@@ -144,8 +194,6 @@ public class MainMenu {
 
         highScoreText.setTranslateY(highScoreTextY);
         highVitalityText.setTranslateY(highVitalityTextY);
-        
-  
         
         // White flash effect
         Rectangle whiteFlash = new Rectangle(scene.getWidth(), scene.getHeight(), Color.WHITE);
@@ -180,10 +228,14 @@ public class MainMenu {
         FadeTransition fadeInHighVitalityText = new FadeTransition(Duration.seconds(.25), highVitalityText);
         fadeInHighVitalityText.setFromValue(0.0);
         fadeInHighVitalityText.setToValue(1.0);
+        
+        FadeTransition fadeInSettings = new FadeTransition(Duration.seconds(.25), soundControlLayout);
+        fadeInSettings.setFromValue(0.0);
+        fadeInSettings.setToValue(1.0);
 
         // Sequential transition to ensure order
         SequentialTransition sequentialTransition = new SequentialTransition();
-        sequentialTransition.getChildren().addAll(fadeOutFlash, fadeInLogo, fadeInButtons, fadeInHighScoreText, fadeInHighVitalityText);
+        sequentialTransition.getChildren().addAll(fadeOutFlash, fadeInLogo, fadeInButtons, fadeInHighScoreText, fadeInHighVitalityText, fadeInSettings);
         sequentialTransition.play();
         
         TranslateTransition upDownAnimation = new TranslateTransition(Duration.seconds(1.5), view_logo);
@@ -206,12 +258,13 @@ public class MainMenu {
 
     private void showGameScreen() {
         System.out.println("Switching to the Game Screen");
-
+        
         Task<Void> gameScreenTask = new Task<Void>() {
             @Override
             protected Void call() throws Exception {
-                GameScreen gameScreen = new GameScreen(primaryStage, highScore, highVitality);
+                GameScreen gameScreen = new GameScreen(primaryStage, highScore, highVitality, settings);
                 Platform.runLater(() -> {
+                
                     stopMusic();
                     animation.stop();
                     primaryStage.setScene(gameScreen.getScene());
@@ -262,12 +315,22 @@ public class MainMenu {
     
     private void playMusic() {
     	sound.setFile(6);
-    	sound.play();
-    	sound.loop(6);
+    	if (!settings.isSfxMuted()) {
+    		sound.play();
+    		sound.loop(6);
+    	}
     }
     
     private void stopMusic() {
     	sound.stop();
+    }
+    
+    private void muteMusic() {
+    	sound.setVolume(0);
+    }
+    
+    private void unmuteMusic() {
+    	sound.setVolume(1);
     }
     
     private void initializeStarAnimation() {
@@ -357,5 +420,34 @@ public class MainMenu {
     	return String.format("%02d:%02d.%02d", minutes, seconds, milliseconds);
     }
     
+   public void musicMuted(Boolean state) {
+	   musicMuted = state;
+    }
     
+    public void sfxMuted(Boolean state) {
+    	sfxMuted = state;
+    }
+    
+    private void toggleMusic() {
+    	settings.setMusicMuted(!settings.isMusicMuted());
+        view_musicToggle.setImage(settings.isMusicMuted() ? musicOff : musicOn);
+        if (settings.isMusicMuted()) {
+        	System.out.println("Music muted.");
+            muteMusic();
+        } else {
+        	System.out.println("Music volume back to 100");
+            unmuteMusic();
+        }
+    }
+
+    private void toggleSFX() {
+    	settings.setSfxMuted(!settings.isSfxMuted());
+        view_sfxToggle.setImage(settings.isSfxMuted() ? sfxOff : sfxOn);
+        if (settings.isSfxMuted()) {
+        	System.out.println("SFX muted.");
+        } else {
+        	System.out.println("SFX volume back to 100");
+        }
+    }
+
 }

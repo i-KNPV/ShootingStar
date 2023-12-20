@@ -13,6 +13,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import application.Settings;
 import enemies.Enemy;
 import items.Item;
 import javafx.animation.Animation;
@@ -33,6 +34,7 @@ public class GameOver{
     private Stage primaryStage;
     private Text timeScoreText;
     private Text vitalityScoreText;
+    private Settings settings;
     
     private boolean newHighScore = false;
     private Text newHighScoreText;
@@ -44,8 +46,9 @@ public class GameOver{
     private int globalHighVitality;
     private int localHighVitality;
 
-    public GameOver(double width, double height, Stage primaryStage, GameScreen screen) {
+    public GameOver(double width, double height, Stage primaryStage, GameScreen screen, Settings settings) {
         this.screen = screen;
+        this.settings = settings;
     	
     	Group root = new Group();
         Image tryAgain = new Image("assets/buttons/retry.png");
@@ -168,7 +171,7 @@ public class GameOver{
     	
     	screen.resetGame();
     	primaryStage.close();
-        GameScreen gameScreen = new GameScreen(primaryStage, highScore, globalHighVitality);
+        GameScreen gameScreen = new GameScreen(primaryStage, highScore, globalHighVitality, settings);
         primaryStage.setScene(gameScreen.getScene());
         primaryStage.show();
         
@@ -181,7 +184,7 @@ public class GameOver{
     	screen.resetGame();
     	
     	primaryStage.close();
-    	MainMenu mainMenu = new MainMenu(primaryStage, highScore, globalHighVitality, true);
+    	MainMenu mainMenu = new MainMenu(primaryStage, highScore, globalHighVitality, true, settings);
     	mainMenu.setDied();
     	primaryStage.setScene(mainMenu.getScene());
     	primaryStage.show();

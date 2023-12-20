@@ -10,7 +10,6 @@ import screens.GameScreen;
 
 public class Boost extends Item{
 	private ImageView image;
-	private Sound sound;
 	private Circle object;
 	protected double objectX;
     protected double objectY;
@@ -22,7 +21,6 @@ public class Boost extends Item{
 		super(sceneWidth, sceneHeight, scene);
 		
 		this.image = image;
-		this.sound = new Sound();
 		this.objectX = generateRandomX();
 	    this.objectY = sceneHeight; 
 		this.object = new Circle(objectX, objectY, ITEM_RADIUS, Color.PINK);
