@@ -5,6 +5,7 @@ import javafx.scene.shape.Circle;
 import javafx.util.Duration;
 import screens.GameScreen;
 import javafx.animation.PauseTransition;
+import javafx.application.Platform;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
@@ -13,6 +14,7 @@ import java.util.HashSet;
 import application.Sound;
 import enemies.Enemy;
 import items.Item;
+import items.Shield;
 import items.Shimmer;
 
 public class Star {
@@ -20,16 +22,19 @@ public class Star {
 	private Sound lowHealthSound;
 	private Sound constantTwinkle;
 	public Inventory inventory;
-    private double objectX;
+    public double objectX;
     public double objectY;
     private ImageView starImage;
+    private ImageView shieldImage;
     private Circle object;
+    private GameScreen screen;
     private Movement movement;
     private int vitality;
     private double sceneWidth;
     private double sceneHeight;
     private boolean collided;
     private boolean isInvincible = false;
+    private boolean hasShield = false;
     private boolean gameActive = true;
     private boolean isLowHealthSoundPlaying = false;
     private double invincibilityTime = 0;
@@ -44,8 +49,10 @@ public class Star {
     private static final Image NORMAL = new Image("assets/sprites/star.png");
     private static final Image HURT = new Image("assets/sprites/star_hurt.png");
     private static final Image DEAD = new Image("assets/sprites/star_death.png");
+    private static final Image SHIELD = new Image("assets/sprites/shield.png");
     
-    public Star(double sceneWidth, double sceneHeight) {
+    public Star(double sceneWidth, double sceneHeight, GameScreen screen) {
+    	this.screen = screen;
     	inventory = new Inventory();
         inventory.clearInventory();
     	
@@ -74,7 +81,14 @@ public class Star {
         starImage.setFitHeight(OBJECT_RADIUS * 4.5);
         starImage.setPreserveRatio(true);
         starImage.setVisible(true);
-        updateImagePosition();
+        updateImagePosition(starImage);
+        
+        shieldImage = new ImageView(SHIELD);
+        shieldImage.setFitWidth(OBJECT_RADIUS * 6);
+        shieldImage.setFitHeight(OBJECT_RADIUS * 6);
+        shieldImage.setPreserveRatio(true);
+        shieldImage.setVisible(false);
+        updateImagePosition(shieldImage);
     }
 
     public Circle getObject() {
@@ -83,8 +97,17 @@ public class Star {
     
     public void handleKeyPress(KeyCode keyCode) {
     	pressedKeys.add(keyCode);
-    	if (keyCode == KeyCode.SPACE && inventory.getInventory() == 1) {
+    	if (keyCode == KeyCode.SPACE && inventory.getInventory() == inventory.BOOST) {
             inventory.applyBoost(movement);
+            inventory.clearInventory();
+        }
+    	
+    	if (keyCode == KeyCode.SPACE && inventory.getInventory() == inventory.SHIELD) {
+            hasShield = true;
+            showActiveShield();
+            soundEffect.setFile(11);
+			soundEffect.play();
+            
             inventory.clearInventory();
         }
     }
@@ -114,29 +137,54 @@ public class Star {
         }
     }
     
-    private void updateImagePosition() {
-    	starImage.setLayoutX(objectX - OBJECT_RADIUS); 
-        starImage.setLayoutY(objectY - OBJECT_RADIUS);
+    private void updateImagePosition(ImageView image) {
+    	double centerX = object.getCenterX();
+        double centerY = object.getCenterY();
+        
+        if (image.equals(shieldImage)) {
+            double offsetX = shieldImage.getFitWidth() / 2;
+            double offsetY = shieldImage.getFitHeight() / 2;
+            image.setLayoutX(centerX - offsetX);
+            image.setLayoutY(centerY - offsetY);
+        } else {
+            double offsetX = OBJECT_RADIUS * 2.25;
+            double offsetY = OBJECT_RADIUS * 2.25;
+            image.setLayoutX(centerX - offsetX);
+            image.setLayoutY(centerY - offsetY);
+        }
     }
     
     public void handleCollisions(Enemy enemy) {
     	if (!isInvincible && enemy.isCollidedWithStar(this)) {
-    		int damage = enemy.getDamage();
-    		
-    		soundEffect.setFile(0);
-    		soundEffect.play();
-    		vitality -= damage;
-    		isInvincible = true;
-            invincibilityTime = 0; 
-            damageText = "-" + damage;
-            
-            // Switch to HURT sprite
-            starImage.setImage(HURT);
-            
-            // Start a pause transition
-            PauseTransition pause = new PauseTransition(Duration.seconds(0.5));
-            pause.setOnFinished(e -> starImage.setImage(NORMAL)); // Switch back to NORMAL sprite
-            pause.play();
+    		if (hasShield) {
+    			soundEffect.setFile(12);
+    			soundEffect.play();
+    			hasShield = false;
+    			
+    			isInvincible = true;
+                invincibilityTime = 0; 
+                
+                if (shieldImage != null) {
+                	hideActiveShield();
+                }
+    		} else {
+        		int damage = enemy.getDamage();
+        		
+        		soundEffect.setFile(0);
+        		soundEffect.play();
+        		vitality -= damage;
+        		isInvincible = true;
+                invincibilityTime = 0; 
+                damageText = "-" + damage;
+                
+                // Switch to HURT sprite
+                starImage.setImage(HURT);
+                
+                // Start a pause transition
+                PauseTransition pause = new PauseTransition(Duration.seconds(0.5));
+                pause.setOnFinished(e -> starImage.setImage(NORMAL)); // Switch back to NORMAL sprite
+                pause.play();
+    		}
     	}
     	
     		
@@ -187,7 +235,12 @@ public class Star {
 	        // Update position of the object
 	        object.setCenterX(objectX);
 	    	object.setCenterY(objectY);
-	    	updateImagePosition();
+	    	updateImagePosition(starImage);
+	    	
+	    	if (hasShield) {
+	    		updateImagePosition(shieldImage);
+	    	}
+	    	
     	} else {
     		movement.stopVertical();
     		movement.stopHorizontal();
@@ -218,6 +271,19 @@ public class Star {
     		lowHealthSound.stop();
             isLowHealthSoundPlaying = false;
         }
+    }
+    
+    private void showActiveShield() {
+    	shieldImage.setVisible(true);
+    	screen.getRoot().getChildren().add(shieldImage);
+    }
+    
+    private void hideActiveShield() {
+    	shieldImage.setVisible(false);
+    	if (shieldImage != null) {
+    		screen.getRoot().getChildren().remove(shieldImage);
+    	}
+    	
     }
     
     public void setGameActive(boolean isActive) {
@@ -257,7 +323,7 @@ public class Star {
 	public Movement getMovement() {
 		return movement;
 	}
-
+	
 	
 	public void reset() {
 		vitality = 100;
